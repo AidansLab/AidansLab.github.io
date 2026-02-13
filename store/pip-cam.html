@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pip-Cam - Aidan's Lab Store</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #4d6081;
+            --secondary-color: #1a202c;
+            --accent-color: #718096;
+            --dark-bg: #0f0f0f;
+            --card-bg: rgba(255, 255, 255, 0.05);
+            --text-light: #e2e8f0;
+            --text-dark: #1a202c;
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --highlight: #ffffff;
+
+            /* Dimensions */
+            --thumb-size: 150px;
+            --thumb-gap: 1rem;
+            /* Height of 3 thumbnails + 2 gaps */
+            --gallery-height: calc((var(--thumb-size) * 3) + (var(--thumb-gap) * 2));
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--secondary-color) 0%, var(--dark-bg) 100%);
+            color: var(--text-light);
+            line-height: 1.6;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        /* Navigation - Simplified for store */
+        .navbar {
+            padding: 1rem 2rem;
+            background: rgba(15, 15, 35, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--glass-border);
+            display: flex;
+            align-items: center;
+        }
+
+        .back-link {
+            color: var(--text-light);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            transition: color 0.3s;
+        }
+
+        .back-link:hover {
+            color: var(--accent-color);
+        }
+
+        /* Main Container */
+        .product-container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: start;
+        }
+
+        /* Gallery Section */
+        .gallery-wrapper {
+            display: flex;
+            gap: 1rem;
+            /* Height matches the viewport of thumbnails */
+            height: auto;
+            align-items: center;
+        }
+
+        /* Gallery Left Column (Nav + Thumbnails) */
+        .gallery-left-col {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0;
+            position: relative;
+            height: var(--gallery-height);
+        }
+
+        .gallery-nav-btn {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50px;
+            height: 30px;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(2px);
+            border: none;
+            color: var(--highlight);
+            font-size: 1.5rem;
+            cursor: pointer;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.3s, background 0.3s, transform 0.2s;
+            opacity: 0;
+            /* Hidden by default */
+        }
+
+        .gallery-left-col:hover .gallery-nav-btn:not(.hidden) {
+            opacity: 1;
+            /* Show on hover */
+        }
+
+        #prevBtn {
+            top: 5px;
+            /* Slight offset from edge */
+        }
+
+        #nextBtn {
+            bottom: 5px;
+            /* Slight offset from edge */
+        }
+
+        .gallery-nav-btn:hover {
+            background: rgba(0, 0, 0, 0.8);
+            color: var(--highlight);
+        }
+
+        .gallery-nav-btn.hidden {
+            opacity: 0 !important;
+            pointer-events: none;
+            cursor: default;
+        }
+
+        .thumbnail-viewport {
+            height: var(--gallery-height);
+            width: var(--thumb-size);
+            overflow: hidden;
+            border-radius: 4px;
+            /* Optional rounded corners for the strip mask */
+        }
+
+        .thumbnail-strip {
+            display: flex;
+            flex-direction: column;
+            gap: var(--thumb-gap);
+            transition: transform 0.3s ease-out;
+            will-change: transform;
+        }
+
+        .thumbnail {
+            width: var(--thumb-size);
+            height: var(--thumb-size);
+            flex-shrink: 0;
+            border: 2px solid transparent;
+            cursor: pointer;
+            opacity: 0.6;
+            transition: all 0.2s;
+            background: black;
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .thumbnail:hover {
+            opacity: 1;
+            border-color: var(--accent-color);
+        }
+
+        .thumbnail.active {
+            opacity: 1;
+            border-color: var(--highlight);
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+        }
+
+        /* Main Image */
+        .main-image-area {
+            flex: 1;
+            height: var(--gallery-height);
+            /* Matches 3 thumbnails exactly */
+            background: black;
+            border-radius: 8px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--glass-border);
+            position: relative;
+        }
+
+        .main-image-area img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            transition: opacity 0.3s ease;
+        }
+
+        /* Product Info Section */
+        .product-info {
+            padding-top: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .product-title {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(45deg, #fff, var(--accent-color));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1.2;
+        }
+
+        .product-subtitle {
+            font-size: 1.5rem;
+            color: var(--accent-color);
+            margin-bottom: 1.5rem;
+            font-weight: 300;
+        }
+
+        .price-block {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 2rem;
+            color: var(--text-light);
+        }
+
+        .description {
+            grid-column: 1 / -1;
+            /* Span full width */
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 2.5rem;
+            margin-top: 1rem;
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: rgba(226, 232, 240, 0.9);
+            max-width: 2000px;
+            justify-self: center;
+            /* Center the box */
+            width: 100%;
+        }
+
+        .description p {
+            margin-bottom: 1rem;
+        }
+
+        .description p:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Features List */
+        .features-list {
+            list-style: none;
+            margin-bottom: 2rem;
+        }
+
+        .features-list li {
+            margin-bottom: 0.8rem;
+            display: flex;
+            align-items: baseline;
+            gap: 0.8rem;
+        }
+
+        .features-list li::before {
+            content: "•";
+            color: var(--highlight);
+        }
+
+        /* Buy Button */
+        .buy-btn {
+            display: inline-block;
+            width: 100%;
+            padding: 1.2rem;
+            background: linear-gradient(45deg, var(--highlight), #d49b00);
+            color: #000;
+            font-weight: 800;
+            font-size: 1.2rem;
+            text-align: center;
+            text-transform: uppercase;
+            text-decoration: none;
+            border: none;
+            border-radius: 4px;
+            cursor: not-allowed;
+            opacity: 0.8;
+            transition: all 0.3s;
+            letter-spacing: 1px;
+        }
+
+        .buy-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(238, 177, 17, 0.2);
+        }
+
+        .out-of-stock {
+            background: #4a5568;
+            color: #a0aec0;
+            cursor: not-allowed;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            :root {
+                --thumb-size: 100px;
+                /* Smaller thumbs on tablet/mobile */
+                --gallery-height: auto;
+                /* Allow auto height */
+            }
+
+            .product-container {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+
+            .gallery-wrapper {
+                flex-direction: column-reverse;
+                height: auto;
+                align-items: stretch;
+            }
+
+            /* Disable vertical navigation on mobile, switch to horizontal scroll */
+            .gallery-left-col {
+                flex-direction: row;
+                width: 100%;
+                align-items: center;
+                height: auto;
+                /* Reset fixed height */
+            }
+
+            .gallery-nav-btn {
+                display: none;
+                /* Hide arrows on mobile */
+            }
+
+            .thumbnail-viewport {
+                width: 100%;
+                height: auto;
+                overflow-x: auto;
+                overflow-y: hidden;
+            }
+
+            .thumbnail-strip {
+                flex-direction: row;
+                width: max-content;
+                transform: none !important;
+                /* Disable JS transform on mobile */
+            }
+
+            .thumbnail {
+                width: var(--thumb-size);
+                height: var(--thumb-size);
+            }
+
+            .main-image-area {
+                height: 400px;
+                /* Fixed height for main image on mobile */
+            }
+
+            .product-title {
+                font-size: 2rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .main-image-area {
+                height: 300px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="product-container">
+        <!-- Vertical Gallery (Left) -->
+        <div class="gallery-wrapper">
+            <div class="gallery-left-col">
+                <button class="gallery-nav-btn" id="prevBtn" onclick="scrollGallery(-1)"
+                    aria-label="Scroll Up">▲</button>
+
+                <div class="thumbnail-viewport" id="thumbViewport">
+                    <div class="thumbnail-strip" id="thumbStrip">
+                        <div class="thumbnail active" onclick="changeImage(this, 'imgs/placeholder.png')">
+                            <img src="imgs/placeholder.png" alt="Front View">
+                        </div>
+                        <div class="thumbnail" onclick="changeImage(this, 'imgs/placeholder.png')">
+                            <img src="imgs/placeholder.png" alt="Side View">
+                        </div>
+                        <div class="thumbnail" onclick="changeImage(this, 'imgs/placeholder.png')">
+                            <img src="imgs/placeholder.png" alt="Back View">
+                        </div>
+                        <div class="thumbnail" onclick="changeImage(this, 'imgs/placeholder.png')">
+                            <img src="imgs/placeholder.png" alt="Detail View">
+                        </div>
+                        <div class="thumbnail" onclick="changeImage(this, 'imgs/placeholder.png')">
+                            <img src="imgs/placeholder.png" alt="Usage View">
+                        </div>
+                        <div class="thumbnail" onclick="changeImage(this, 'imgs/placeholder.png')">
+                            <img src="imgs/placeholder.png" alt="Usage View">
+                        </div>
+                        <div class="thumbnail" onclick="changeImage(this, 'imgs/placeholder.png')">
+                            <img src="imgs/placeholder.png" alt="Usage View">
+                        </div>
+                        <div class="thumbnail" onclick="changeImage(this, 'imgs/placeholder.png')">
+                            <img src="imgs/placeholder.png" alt="Usage View">
+                        </div>
+                        <div class="thumbnail" onclick="changeImage(this, 'imgs/placeholder.png')">
+                            <img src="imgs/placeholder.png" alt="Usage View">
+                        </div>
+                        <div class="thumbnail" onclick="changeImage(this, 'imgs/placeholder.png')">
+                            <img src="imgs/placeholder.png" alt="Usage View">
+                        </div>
+                    </div>
+                </div>
+
+                <button class="gallery-nav-btn" id="nextBtn" onclick="scrollGallery(1)"
+                    aria-label="Scroll Down">▼</button>
+            </div>
+
+            <div class="main-image-area">
+                <img id="mainImage" src="imgs/placeholder.png" alt="Pip-Cam Main View">
+            </div>
+        </div>
+
+        <!-- Product Details (Right) -->
+        <div class="product-info">
+            <h1 class="product-title">Pip-Cam</h1>
+            <h2 class="product-subtitle">Accessory for Pip-Boy 3000 MK V</h2>
+
+            <div class="price-block">
+                $49.99 <span style="font-size: 1rem; font-weight: normal; opacity: 0.7;">/ Coming Soon</span>
+            </div>
+
+            <ul class="features-list">
+                <li>3MP camera to capture every scale on the Deathclaw mauling you!</li>
+                <li>View your images right on your Pip-Boy!</li>
+                <li>Download your photos with the Pip-Cam companion site</li>
+                <li>Easy installation</li>
+                <li>Compatible with Pip-Boy 3000 MK V & 3000a</li>
+            </ul>
+
+            <button class="buy-btn out-of-stock">Coming Soon</button>
+        </div>
+
+        <!-- Moved Description Below Buy Button AND Full Width -->
+        <div class="description">
+            <p>
+                The Pip-Cam is the perfect companion for any Vault Dweller, Wasteland Raider, or Tunnel Snake
+                looking to capture the wasteland in all its radioactive glory.
+            </p>
+            <p>
+                With a battery life that will last
+                even after your inevitable demise at the hands of a Deathclaw, the Pip-Cam can capture every Super
+                Mutant, Ghoul, and Radroach that tries to kill you.
+            </p>
+            <p>
+                The Pip-Cam boasts a whopping 3 megapixels, meaning you can capture every hair on a Radroach, and every
+                scale on a Deathclaw.
+            </p>
+            <p>
+                The Pip-Cam is also extremely easy to install, simply install the Pip-Cam module to your Pip-Boy, plug
+                in the Pip-Cam to the terminal port on your Pip-Boy, and start shooting... pictures!
+            </p>
+            <p>
+                Watch the feature walkthrough here:
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // Image switching logic
+        function changeImage(thumbnail, src) {
+            const mainImg = document.getElementById('mainImage');
+
+            // Only fade if changing source
+            if (mainImg.src !== src) {
+                mainImg.style.opacity = '0';
+                setTimeout(() => {
+                    mainImg.src = src;
+                    mainImg.style.opacity = '1';
+                }, 200);
+            }
+
+            document.querySelectorAll('.thumbnail').forEach(t => t.classList.remove('active'));
+            thumbnail.classList.add('active');
+        }
+
+        // Gallery Scrolling Logic
+        let currentScrollIndex = 0;
+        const thumbViewport = document.getElementById('thumbViewport');
+        const thumbStrip = document.getElementById('thumbStrip');
+        const thumbnails = document.querySelectorAll('.thumbnail');
+        const totalThumbnails = thumbnails.length;
+        const visibleThumbnails = 3;
+
+        function updateScrollButtons() {
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+
+            if (currentScrollIndex <= 0) {
+                prevBtn.classList.add('hidden');
+            } else {
+                prevBtn.classList.remove('hidden');
+            }
+
+            if (currentScrollIndex >= totalThumbnails - visibleThumbnails) {
+                nextBtn.classList.add('hidden');
+            } else {
+                nextBtn.classList.remove('hidden');
+            }
+        }
+
+        function scrollGallery(direction) {
+            // Boundary checks
+            if (direction === -1 && currentScrollIndex > 0) {
+                currentScrollIndex--;
+            } else if (direction === 1 && currentScrollIndex < totalThumbnails - visibleThumbnails) {
+                currentScrollIndex++;
+            }
+
+            // Calculate translation using CSS variables if possible, or computing computed style
+            // We know the height of (thumb + gap)
+            const thumbHeight = thumbnails[0].offsetHeight;
+            const gap = parseFloat(getComputedStyle(thumbStrip).gap) || 16;
+            const scrollAmount = (thumbHeight + gap) * currentScrollIndex;
+
+            thumbStrip.style.transform = `translateY(-${scrollAmount}px)`;
+            updateScrollButtons();
+        }
+
+        // Initial setup
+        updateScrollButtons();
+    </script>
+</body>
+
+</html>
