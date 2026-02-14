@@ -1,553 +1,623 @@
 <!DOCTYPE html>
 <html lang="en">
+<script
+    src="https://www.paypal.com/sdk/js?client-id=BAA284rGjszSWGkaZcR2stSbGN2wqNpF9XHN7acaocKV4qEwJyD--dQreZbf_VcdokH9KXpbit6UM-ecH0&components=hosted-buttons&enable-funding=venmo&currency=USD">
+    </script>
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pip-Cam - Aidan's Lab Store</title>
+    <title>Pip-Cam - RobCo Terminal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        :root {
+            --terminal-green: #00e600;
+            /* Standard Pip-Boy Green */
+            --terminal-dim: #004d00;
+            --terminal-bg: #0a0a0a;
+            --scanline-color: rgba(0, 0, 0, 0.5);
+            --glow: 0 0 5px var(--terminal-green);
         }
 
-        :root {
-            --primary-color: #4d6081;
-            --secondary-color: #1a202c;
-            --accent-color: #718096;
-            --dark-bg: #0f0f0f;
-            --card-bg: rgba(255, 255, 255, 0.05);
-            --text-light: #e2e8f0;
-            --text-dark: #1a202c;
-            --glass-bg: rgba(255, 255, 255, 0.03);
-            --glass-border: rgba(255, 255, 255, 0.08);
-            --highlight: #ffffff;
-
-            /* Dimensions */
-            --thumb-size: 150px;
-            --thumb-gap: 1rem;
-            /* Height of 3 thumbnails + 2 gaps */
-            --gallery-height: calc((var(--thumb-size) * 3) + (var(--thumb-gap) * 2));
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, var(--secondary-color) 0%, var(--dark-bg) 100%);
-            color: var(--text-light);
-            line-height: 1.6;
+            background-color: var(--terminal-bg);
+            color: var(--terminal-green);
+            font-family: 'Roboto Mono', monospace;
+            line-height: 1.5;
             overflow-x: hidden;
-            min-height: 100vh;
-        }
-
-        /* Navigation - Simplified for store */
-        .navbar {
-            padding: 1rem 2rem;
-            background: rgba(15, 15, 35, 0.95);
-            backdrop-filter: blur(20px);
-            border-bottom: 1px solid var(--glass-border);
+            height: 100vh;
             display: flex;
-            align-items: center;
+            flex-direction: column;
         }
 
-        .back-link {
-            color: var(--text-light);
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-weight: 600;
-            transition: color 0.3s;
+        /* CRT Scanline Effect Overlay */
+        .scanlines {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom,
+                    rgba(255, 255, 255, 0),
+                    rgba(255, 255, 255, 0) 50%,
+                    rgba(0, 0, 0, 0.2) 50%,
+                    rgba(0, 0, 0, 0.2));
+            background-size: 100% 4px;
+            pointer-events: none;
+            z-index: 1000;
+            opacity: 0.6;
         }
 
-        .back-link:hover {
-            color: var(--accent-color);
+        /* Screen Glow */
+        .screen-glow {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(0, 50, 0, 0.1) 0%, rgba(0, 0, 0, 0.4) 100%);
+            pointer-events: none;
+            z-index: 999;
         }
 
         /* Main Container */
-        .product-container {
-            max-width: 1400px;
-            margin: 2rem auto;
-            padding: 0 2rem;
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Header */
+        header {
+            border-bottom: 2px solid var(--terminal-green);
+            padding-bottom: 1rem;
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            text-shadow: var(--glow);
+        }
+
+        h1 {
+            font-size: 2rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .header-meta {
+            text-align: right;
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+
+        /* Layout Grid */
+        .main-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 4rem;
+            gap: 3rem;
+            flex: 1;
             align-items: start;
+            /* Prevent left col from stretching to match right col */
         }
 
-        /* Gallery Section */
-        .gallery-wrapper {
+        /* Left Column: Visuals */
+        .visual-module {
+            border: 2px solid var(--terminal-green);
+            padding: 4px;
+            /* Double border effect */
+            display: flex;
+            flex-direction: column;
+            box-shadow: var(--glow);
+        }
+
+        /* Visual Module Layout */
+        .visual-row {
             display: flex;
             gap: 1rem;
-            /* Height matches the viewport of thumbnails */
-            height: auto;
-            align-items: center;
-        }
-
-        /* Gallery Left Column (Nav + Thumbnails) */
-        .gallery-left-col {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 0;
-            position: relative;
-            height: var(--gallery-height);
-        }
-
-        .gallery-nav-btn {
-            position: absolute;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 50px;
-            height: 30px;
-            background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(2px);
-            border: none;
-            color: var(--highlight);
-            font-size: 1.5rem;
-            cursor: pointer;
-            z-index: 10;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: opacity 0.3s, background 0.3s, transform 0.2s;
-            opacity: 0;
-            /* Hidden by default */
-        }
-
-        .gallery-left-col:hover .gallery-nav-btn:not(.hidden) {
-            opacity: 1;
-            /* Show on hover */
-        }
-
-        #prevBtn {
-            top: 5px;
-            /* Slight offset from edge */
-        }
-
-        #nextBtn {
-            bottom: 5px;
-            /* Slight offset from edge */
-        }
-
-        .gallery-nav-btn:hover {
-            background: rgba(0, 0, 0, 0.8);
-            color: var(--highlight);
-        }
-
-        .gallery-nav-btn.hidden {
-            opacity: 0 !important;
-            pointer-events: none;
-            cursor: default;
-        }
-
-        .thumbnail-viewport {
-            height: var(--gallery-height);
-            width: var(--thumb-size);
+            padding: 0.5rem;
+            /* Reduced padding */
+            height: 420px;
             overflow: hidden;
-            border-radius: 4px;
-            /* Optional rounded corners for the strip mask */
         }
 
-        .thumbnail-strip {
-            display: flex;
-            flex-direction: column;
-            gap: var(--thumb-gap);
-            transition: transform 0.3s ease-out;
-            will-change: transform;
-        }
-
-        .thumbnail {
-            width: var(--thumb-size);
-            height: var(--thumb-size);
-            flex-shrink: 0;
-            border: 2px solid transparent;
-            cursor: pointer;
-            opacity: 0.6;
-            transition: all 0.2s;
-            background: black;
-            border-radius: 4px;
-            overflow: hidden;
-            position: relative;
-        }
-
-        .thumbnail img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .thumbnail:hover {
-            opacity: 1;
-            border-color: var(--accent-color);
-        }
-
-        .thumbnail.active {
-            opacity: 1;
-            border-color: var(--highlight);
-            box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
-        }
-
-        /* Main Image */
-        .main-image-area {
+        .image-container {
             flex: 1;
-            height: var(--gallery-height);
-            /* Matches 3 thumbnails exactly */
-            background: black;
-            border-radius: 8px;
-            overflow: hidden;
+            /* Occupy remaining space */
+            background: #000;
+            border: 1px solid var(--terminal-green);
             display: flex;
             align-items: center;
             justify-content: center;
-            border: 1px solid var(--glass-border);
+            overflow: hidden;
             position: relative;
         }
 
-        .main-image-area img {
+        .image-container img {
             width: 100%;
             height: 100%;
             object-fit: contain;
-            transition: opacity 0.3s ease;
+            opacity: 0.9;
         }
 
-        /* Product Info Section */
-        .product-info {
-            padding-top: 0;
+        /* Thumbnail Navigation Column */
+        .thumb-col {
             display: flex;
             flex-direction: column;
+            gap: 0.5rem;
+            width: 100px;
+            align-items: center;
+        }
+
+        .nav-arrow {
+            background: rgba(0, 20, 0, 0.5);
+            border: 1px solid var(--terminal-green);
+            color: var(--terminal-green);
+            width: 100%;
+            padding: 5px;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: bold;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
             justify-content: center;
         }
 
-        .product-title {
-            font-size: 3rem;
-            margin-bottom: 0.5rem;
-            background: linear-gradient(45deg, #fff, var(--accent-color));
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
-            line-height: 1.2;
+        .nav-arrow:hover {
+            background: var(--terminal-green);
+            color: var(--terminal-bg);
         }
 
-        .product-subtitle {
-            font-size: 1.5rem;
-            color: var(--accent-color);
-            margin-bottom: 1.5rem;
-            font-weight: 300;
-        }
-
-        .price-block {
-            font-size: 2rem;
-            font-weight: bold;
-            margin-bottom: 2rem;
-            color: var(--text-light);
-        }
-
-        .description {
-            grid-column: 1 / -1;
-            /* Span full width */
-            background: var(--glass-bg);
-            backdrop-filter: blur(20px);
-            border: 1px solid var(--glass-border);
-            border-radius: 12px;
-            padding: 2.5rem;
+        /* Video Embed */
+        .video-container {
             margin-top: 1rem;
-            font-size: 1.1rem;
-            line-height: 1.8;
-            color: rgba(226, 232, 240, 0.9);
-            max-width: 2000px;
-            justify-self: center;
-            /* Center the box */
-            width: 100%;
+            border: 1px solid var(--terminal-green);
+            position: relative;
+            padding-bottom: 56.25%;
+            /* 16:9 Aspect Ratio */
+            height: 0;
+            overflow: hidden;
+            box-shadow: var(--glow);
         }
 
-        .description p {
+        .video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+            opacity: 0.8;
+            /* Slight transparency for terminal feel */
+            transition: opacity 0.3s;
+        }
+
+        .video-container:hover iframe {
+            opacity: 1;
+        }
+
+        /* Feed Thumbnails (Vertical Strip) */
+        .feed-thumbnails {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            flex: 1;
+            width: 100%;
+            overflow-y: hidden;
+            /* Hide default scrollbar, use arrows */
+            scroll-behavior: smooth;
+        }
+
+        .feed-thumb {
+            width: 100%;
+            aspect-ratio: 1;
+            border: 1px solid var(--terminal-dim);
+            cursor: pointer;
+            opacity: 0.6;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .feed-thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .feed-thumb:hover,
+        .feed-thumb.active {
+            border-color: var(--terminal-green);
+            opacity: 1;
+            box-shadow: var(--glow);
+        }
+
+        .feed-thumb.active::after {
+            content: ">>";
+            position: absolute;
+            top: 0;
+            left: 0;
+            background: rgba(0, 0, 0, 0.8);
+            color: var(--terminal-green);
+            font-size: 0.8rem;
+            padding: 2px;
+        }
+
+        .module-label {
+            background: var(--terminal-green);
+            color: var(--terminal-bg);
+            padding: 0.5rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        /* Right Column: Data */
+        .data-module {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .product-title-block {
+            border-left: 4px solid var(--terminal-green);
+            padding-left: 1rem;
+        }
+
+        .product-title-block h2 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .price {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .status {
+            font-size: 0.9rem;
+            padding: 0.2rem 0.5rem;
+            border: 1px solid var(--terminal-green);
+            display: inline-block;
+            margin-left: 1rem;
+            text-transform: uppercase;
+        }
+
+        /* Tabs (Pip-Boy Style) */
+        .pip-tabs {
+            display: flex;
+            gap: 2px;
             margin-bottom: 1rem;
         }
 
-        .description p:last-child {
-            margin-bottom: 0;
+        .pip-tab-btn {
+            background: transparent;
+            border: 2px solid var(--terminal-green);
+            color: var(--terminal-green);
+            padding: 0.5rem 1.5rem;
+            font-family: inherit;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            text-transform: uppercase;
+            flex: 1;
+            transition: all 0.2s;
         }
 
-        /* Features List */
-        .features-list {
+        .pip-tab-btn:hover,
+        .pip-tab-btn.active {
+            background: var(--terminal-green);
+            color: var(--terminal-bg);
+            box-shadow: var(--glow);
+        }
+
+        .tab-content {
+            border: 1px solid var(--terminal-dim);
+            padding: 1.5rem;
+            background: rgba(0, 20, 0, 0.3);
+            display: none;
+            min-height: 200px;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        ul.terminal-list {
             list-style: none;
-            margin-bottom: 2rem;
         }
 
-        .features-list li {
+        ul.terminal-list li {
             margin-bottom: 0.8rem;
             display: flex;
             align-items: baseline;
-            gap: 0.8rem;
         }
 
-        .features-list li::before {
-            content: "•";
-            color: var(--highlight);
+        ul.terminal-list li::before {
+            content: ">";
+            margin-right: 1rem;
+            font-weight: bold;
         }
 
-        /* Buy Button */
-        .buy-btn {
-            display: inline-block;
-            width: 100%;
-            padding: 1.2rem;
-            background: linear-gradient(45deg, var(--highlight), #d49b00);
-            color: #000;
-            font-weight: 800;
-            font-size: 1.2rem;
-            text-align: center;
-            text-transform: uppercase;
-            text-decoration: none;
+        /* Spec Table */
+        .spec-row {
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px dashed var(--terminal-dim);
+            padding: 0.5rem 0;
+        }
+
+        .spec-row:last-child {
+            border-bottom: none;
+        }
+
+        /* Action Bar */
+        .action-bar {
+            margin-top: auto;
+            border-top: 2px solid var(--terminal-green);
+            padding-top: 1.5rem;
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn-terminal {
+            background: var(--terminal-green);
+            color: var(--terminal-bg);
             border: none;
-            border-radius: 4px;
-            cursor: not-allowed;
-            opacity: 0.8;
-            transition: all 0.3s;
-            letter-spacing: 1px;
+            padding: 1rem 5.3rem;
+            /* Increased padding for width */
+            font-family: inherit;
+            font-weight: bold;
+            font-size: 1.2rem;
+            text-transform: uppercase;
+            cursor: pointer;
+            box-shadow: var(--glow);
+            transition: transform 0.1s;
         }
 
-        .buy-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(238, 177, 17, 0.2);
+        .btn-terminal:hover {
+            transform: scale(1.02);
+            background: #33ff33;
         }
 
-        .out-of-stock {
-            background: #4a5568;
-            color: #a0aec0;
-            cursor: not-allowed;
+        .btn-terminal.secondary {
+            background: transparent;
+            border: 2px solid var(--terminal-green);
+            color: var(--terminal-green);
+            box-shadow: none;
+        }
+
+        .btn-terminal.secondary:hover {
+            background: rgba(0, 230, 0, 0.1);
+        }
+
+        /* Resources Footer */
+        .resources-footer {
+            margin-top: 4rem;
+            border-top: 1px solid var(--terminal-dim);
+            padding-top: 1rem;
+        }
+
+        .file-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .file-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--terminal-green);
+            text-decoration: none;
+            padding: 0.5rem;
+            border: 1px solid transparent;
+        }
+
+        .file-item:hover {
+            background: rgba(0, 230, 0, 0.1);
+            border: 1px dashed var(--terminal-green);
         }
 
         /* Responsive */
-        @media (max-width: 1024px) {
-            :root {
-                --thumb-size: 100px;
-                /* Smaller thumbs on tablet/mobile */
-                --gallery-height: auto;
-                /* Allow auto height */
-            }
-
-            .product-container {
+        @media (max-width: 768px) {
+            .main-grid {
                 grid-template-columns: 1fr;
-                gap: 2rem;
             }
 
-            .gallery-wrapper {
-                flex-direction: column-reverse;
-                height: auto;
-                align-items: stretch;
-            }
-
-            /* Disable vertical navigation on mobile, switch to horizontal scroll */
-            .gallery-left-col {
-                flex-direction: row;
-                width: 100%;
-                align-items: center;
-                height: auto;
-                /* Reset fixed height */
-            }
-
-            .gallery-nav-btn {
+            .header-meta {
                 display: none;
-                /* Hide arrows on mobile */
-            }
-
-            .thumbnail-viewport {
-                width: 100%;
-                height: auto;
-                overflow-x: auto;
-                overflow-y: hidden;
-            }
-
-            .thumbnail-strip {
-                flex-direction: row;
-                width: max-content;
-                transform: none !important;
-                /* Disable JS transform on mobile */
-            }
-
-            .thumbnail {
-                width: var(--thumb-size);
-                height: var(--thumb-size);
-            }
-
-            .main-image-area {
-                height: 400px;
-                /* Fixed height for main image on mobile */
-            }
-
-            .product-title {
-                font-size: 2rem;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .main-image-area {
-                height: 300px;
             }
         }
     </style>
 </head>
 
 <body>
-    <div class="product-container">
-        <!-- Vertical Gallery (Left) -->
-        <div class="gallery-wrapper">
-            <div class="gallery-left-col">
-                <button class="gallery-nav-btn" id="prevBtn" onclick="scrollGallery(-1)"
-                    aria-label="Scroll Up">▲</button>
+    <div class="scanlines"></div>
+    <div class="screen-glow"></div>
 
-                <div class="thumbnail-viewport" id="thumbViewport">
-                    <div class="thumbnail-strip" id="thumbStrip">
-                        <div class="thumbnail active" onclick="changeImage(this, 'imgs/placeholder.png')">
-                            <img src="imgs/placeholder.png" alt="Front View">
+    <div class="container">
+        <header>
+            <h1>Pip-Cam</h1>
+            <div class="header-meta">
+                COPYRIGHT 2026 AIDAN'S LAB
+            </div>
+        </header>
+
+        <div class="main-grid">
+            <!-- Left: Visual -->
+            <div class="visual-module">
+                <div class="visual-row">
+                    <!-- Vertical Thumbnails with Nav -->
+                    <div class="thumb-col">
+                        <button class="nav-arrow" onclick="scrollThumbs(-1)">▲</button>
+
+                        <div class="feed-thumbnails" id="thumbStrip">
+                            <div class="feed-thumb active" onclick="switchFeed('imgs/placeholder.png', this)">
+                                <img src="imgs/placeholder.png" alt="View 1">
+                            </div>
+                            <div class="feed-thumb" onclick="switchFeed('imgs/placeholder.png', this)">
+                                <img src="imgs/placeholder.png" alt="View 2">
+                            </div>
+                            <div class="feed-thumb" onclick="switchFeed('imgs/placeholder.png', this)">
+                                <img src="imgs/placeholder.png" alt="View 3">
+                            </div>
+                            <div class="feed-thumb" onclick="switchFeed('imgs/placeholder.png', this)">
+                                <img src="imgs/placeholder.png" alt="View 4">
+                            </div>
+                            <div class="feed-thumb" onclick="switchFeed('imgs/placeholder.png', this)">
+                                <img src="imgs/placeholder.png" alt="View 5">
+                            </div>
+                            <!-- More thumbs for scrolling demo -->
+                            <div class="feed-thumb" onclick="switchFeed('imgs/placeholder.png', this)">
+                                <img src="imgs/placeholder.png" alt="View 6">
+                            </div>
                         </div>
-                        <div class="thumbnail" onclick="changeImage(this, 'imgs/placeholder.png')">
-                            <img src="imgs/placeholder.png" alt="Side View">
-                        </div>
-                        <div class="thumbnail" onclick="changeImage(this, 'imgs/placeholder.png')">
-                            <img src="imgs/placeholder.png" alt="Back View">
-                        </div>
-                        <div class="thumbnail" onclick="changeImage(this, 'imgs/placeholder.png')">
-                            <img src="imgs/placeholder.png" alt="Detail View">
-                        </div>
-                        <div class="thumbnail" onclick="changeImage(this, 'imgs/placeholder.png')">
-                            <img src="imgs/placeholder.png" alt="Usage View">
-                        </div>
-                        <div class="thumbnail" onclick="changeImage(this, 'imgs/placeholder.png')">
-                            <img src="imgs/placeholder.png" alt="Usage View">
-                        </div>
-                        <div class="thumbnail" onclick="changeImage(this, 'imgs/placeholder.png')">
-                            <img src="imgs/placeholder.png" alt="Usage View">
-                        </div>
-                        <div class="thumbnail" onclick="changeImage(this, 'imgs/placeholder.png')">
-                            <img src="imgs/placeholder.png" alt="Usage View">
-                        </div>
-                        <div class="thumbnail" onclick="changeImage(this, 'imgs/placeholder.png')">
-                            <img src="imgs/placeholder.png" alt="Usage View">
-                        </div>
-                        <div class="thumbnail" onclick="changeImage(this, 'imgs/placeholder.png')">
-                            <img src="imgs/placeholder.png" alt="Usage View">
-                        </div>
+
+                        <button class="nav-arrow" onclick="scrollThumbs(1)">▼</button>
+                    </div>
+
+                    <!-- Main Image -->
+                    <div class="image-container">
+                        <img id="main-feed" src="imgs/placeholder.png" alt="Pip-Cam Feed">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Data -->
+            <div class="data-module">
+                <div class="product-title-block">
+                    <h2>PIP-CAM</h2>
+                    <div style="display: flex; align-items: baseline; margin-top: 0.5rem;">
+                        <span class="price">$49.99</span>
+                        <span class="status">COMING SOON</span>
                     </div>
                 </div>
 
-                <button class="gallery-nav-btn" id="nextBtn" onclick="scrollGallery(1)"
-                    aria-label="Scroll Down">▼</button>
-            </div>
+                <div class="description-text" style="font-size: 0.9rem; opacity: 0.9; margin-bottom: 2rem;">
+                    Enhance your Pip-Boy 3000 MK V or 3000a with picture capabilities.
+                    This RobCo certified attachment integrates seamlessly with existing Pip-Boy units.
+                </div>
 
-            <div class="main-image-area">
-                <img id="mainImage" src="imgs/placeholder.png" alt="Pip-Cam Main View">
+                <!-- Tabs -->
+                <div class="pip-tabs">
+                    <button class="pip-tab-btn active" onclick="switchPipTab('info')">INFO</button>
+                    <button class="pip-tab-btn" onclick="switchPipTab('stats')">STATS</button>
+                </div>
+
+                <div id="info" class="tab-content active">
+                    <ul class="terminal-list">
+                        <li>3MP camera to capture every scale on the Deathclaw mauling you</li>
+                        <li>View your images right on your Pip-Boy</li>
+                        <li>Download your photos with the Pip-Cam companion site</li>
+                        <li>Easy installation</li>
+                        <li>Compatible with Pip-Boy 3000 MK V & 3000a</li>
+                    </ul>
+                </div>
+
+                <div id="stats" class="tab-content">
+                    <div class="spec-row">
+                        <span>RESOLUTION</span>
+                        <span>3 MP</span>
+                    </div>
+                    <div class="spec-row">
+                        <span>POWER_SOURCE</span>
+                        <span>Li-Po (500mAh)</span>
+                    </div>
+                    <div class="spec-row">
+                        <span>OPERATING_TIME <br> (Three photos every 70 seconds) <br> (Standby)</span>
+                        <span><br>~5 HOURS <br> ~2 YEARS</span>
+                    </div>
+                    <div class="spec-row">
+                        <span>WEIGHT</span>
+                        <span>186g</span>
+                    </div>
+                    <div class="spec-row">
+                        <span>COMPATIBILITY</span>
+                        <span>3000 MK V & 3000a</span>
+                    </div>
+                </div>
+
+                <div class="action-bar">
+                    <form action="https://www.paypal.com/ncp/payment/4DPZSTBYEXS8A" method="post" target="_blank"
+                        style="display:inline-grid;justify-items:center;align-content:start;gap:0.5rem; width: 100%;">
+                        <input class="btn-terminal" type="submit" value="BUY" />
+                        <img src="https://www.paypalobjects.com/images/Debit_Credit.svg" alt="cards" />
+                        <section style="font-size: 0.75rem; color: var(--terminal-green);"> Powered by <img
+                                src="https://www.paypalobjects.com/paypal-ui/logos/svg/paypal-wordmark-color.svg"
+                                alt="paypal"
+                                style="height:0.875rem;vertical-align:middle; filter: grayscale(100%) brightness(100%) sepia(100%) hue-rotate(50deg) saturate(500%);" />
+                        </section>
+                    </form>
+                </div>
             </div>
         </div>
 
-        <!-- Product Details (Right) -->
-        <div class="product-info">
-            <h1 class="product-title">Pip-Cam</h1>
-            <h2 class="product-subtitle">Accessory for Pip-Boy 3000 MK V</h2>
-
-            <div class="price-block">
-                $49.99 <span style="font-size: 1rem; font-weight: normal; opacity: 0.7;">/ Coming Soon</span>
+        <div class="resources-footer">
+            <div style="margin-bottom: 0.5rem; font-weight: bold;">>> DOWNLOADS_DIRECTORY:</div>
+            <div class="file-list">
+                <a href="../docs/Pip-Cam-Manual.pdf" class="file-item" target="_blank">[FILE] MANUAL.PDF</a>
+                <a href="https://pip-boy.com/3000-mk-v/cfw-builder" class="file-item" target="_blank">[LINK]
+                    CFW BUILDER</a>
+                <a href="#" class="file-item" onclick="alert('ACCESS_DENIED: SERVER_OFFLINE')" target="_blank">[LINK]
+                    IMAGE MANAGER</a>
+                <a href="https://github.com/AidansLab/Pip-Cam" class="file-item" target="_blank">[REPO]
+                    GITHUB SOURCE</a>
             </div>
-
-            <ul class="features-list">
-                <li>3MP camera to capture every scale on the Deathclaw mauling you!</li>
-                <li>View your images right on your Pip-Boy!</li>
-                <li>Download your photos with the Pip-Cam companion site</li>
-                <li>Easy installation</li>
-                <li>Compatible with Pip-Boy 3000 MK V & 3000a</li>
-            </ul>
-
-            <button class="buy-btn out-of-stock">Coming Soon</button>
-        </div>
-
-        <!-- Moved Description Below Buy Button AND Full Width -->
-        <div class="description">
-            <p>
-                The Pip-Cam is the perfect companion for any Vault Dweller, Wasteland Raider, or Tunnel Snake
-                looking to capture the wasteland in all its radioactive glory.
-            </p>
-            <p>
-                With a battery life that will last
-                even after your inevitable demise at the hands of a Deathclaw, the Pip-Cam can capture every Super
-                Mutant, Ghoul, and Radroach that tries to kill you.
-            </p>
-            <p>
-                The Pip-Cam boasts a whopping 3 megapixels, meaning you can capture every hair on a Radroach, and every
-                scale on a Deathclaw.
-            </p>
-            <p>
-                The Pip-Cam is also extremely easy to install, simply install the Pip-Cam module to your Pip-Boy, plug
-                in the Pip-Cam to the terminal port on your Pip-Boy, and start shooting... pictures!
-            </p>
-            <p>
-                Watch the feature walkthrough here:
-            </p>
         </div>
     </div>
 
     <script>
-        // Image switching logic
-        function changeImage(thumbnail, src) {
-            const mainImg = document.getElementById('mainImage');
+        function switchFeed(src, btn) {
+            // Update Image
+            const img = document.getElementById('main-feed');
+            img.style.opacity = '0.5';
+            setTimeout(() => {
+                img.src = src;
+                img.style.opacity = '1';
+            }, 100);
 
-            // Only fade if changing source
-            if (mainImg.src !== src) {
-                mainImg.style.opacity = '0';
-                setTimeout(() => {
-                    mainImg.src = src;
-                    mainImg.style.opacity = '1';
-                }, 200);
-            }
-
-            document.querySelectorAll('.thumbnail').forEach(t => t.classList.remove('active'));
-            thumbnail.classList.add('active');
+            // Update Buttons
+            document.querySelectorAll('.feed-thumb').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
         }
 
-        // Gallery Scrolling Logic
-        let currentScrollIndex = 0;
-        const thumbViewport = document.getElementById('thumbViewport');
-        const thumbStrip = document.getElementById('thumbStrip');
-        const thumbnails = document.querySelectorAll('.thumbnail');
-        const totalThumbnails = thumbnails.length;
-        const visibleThumbnails = 3;
-
-        function updateScrollButtons() {
-            const prevBtn = document.getElementById('prevBtn');
-            const nextBtn = document.getElementById('nextBtn');
-
-            if (currentScrollIndex <= 0) {
-                prevBtn.classList.add('hidden');
-            } else {
-                prevBtn.classList.remove('hidden');
-            }
-
-            if (currentScrollIndex >= totalThumbnails - visibleThumbnails) {
-                nextBtn.classList.add('hidden');
-            } else {
-                nextBtn.classList.remove('hidden');
-            }
+        function scrollThumbs(direction) {
+            const container = document.getElementById('thumbStrip');
+            const scrollAmount = 115; // Approx one thumb height
+            container.scrollBy({
+                top: direction * scrollAmount,
+                behavior: 'smooth'
+            });
         }
 
-        function scrollGallery(direction) {
-            // Boundary checks
-            if (direction === -1 && currentScrollIndex > 0) {
-                currentScrollIndex--;
-            } else if (direction === 1 && currentScrollIndex < totalThumbnails - visibleThumbnails) {
-                currentScrollIndex++;
-            }
+        function switchPipTab(tabId) {
+            // Update buttons
+            document.querySelectorAll('.pip-tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.getAttribute('onclick').includes(tabId)) {
+                    btn.classList.add('active');
+                }
+            });
 
-            // Calculate translation using CSS variables if possible, or computing computed style
-            // We know the height of (thumb + gap)
-            const thumbHeight = thumbnails[0].offsetHeight;
-            const gap = parseFloat(getComputedStyle(thumbStrip).gap) || 16;
-            const scrollAmount = (thumbHeight + gap) * currentScrollIndex;
-
-            thumbStrip.style.transform = `translateY(-${scrollAmount}px)`;
-            updateScrollButtons();
+            // Update content
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.getElementById(tabId).classList.add('active');
         }
-
-        // Initial setup
-        updateScrollButtons();
     </script>
 </body>
 
