@@ -1,0 +1,1001 @@
+<!DOCTYPE html>
+<html lang="en">
+<script type="text/javascript" src="Scripts/typewriter.js"></script>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="form-action 'self' https://aidanleecalamera.github.io">
+    <meta http-equiv="Content-Security-Policy" content="form-action 'self' mailto:">
+    <title>Aidan Lee-Calamera - Portfolio</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #4d6081;
+            --secondary-color: #1a202c;
+            --accent-color: #718096;
+            --dark-bg: #0f0f0f;
+            --card-bg: rgba(255, 255, 255, 0.05);
+            --text-light: #e2e8f0;
+            --text-dark: #1a202c;
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.08);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--secondary-color) 0%, var(--dark-bg) 100%);
+            color: var(--text-light);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Conway's Game of Life Background */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+            opacity: 0.3;
+        }
+
+        #gameOfLifeCanvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0px) rotate(0deg);
+            }
+
+            50% {
+                transform: translateY(-20px) rotate(180deg);
+            }
+        }
+
+        /* Navigation */
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(15, 15, 35, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--glass-border);
+            z-index: 1000;
+            padding: 1rem 0;
+            transition: all 0.3s ease;
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 2rem;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            background: linear-gradient(45deg, var(--accent-color), #fff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            position: relative;
+            padding: 0 2rem;
+        }
+
+        .hero-content {
+            max-width: 800px;
+            animation: fadeInUp 1s ease-out;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, var(--accent-color), #fff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from {
+                filter: drop-shadow(0 0 20px rgba(113, 128, 150, 0.3));
+            }
+
+            to {
+                filter: drop-shadow(0 0 30px rgba(113, 128, 150, 0.6));
+            }
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+
+        .cta-button {
+            display: inline-block;
+            padding: 1rem 2rem;
+            background: linear-gradient(45deg, var(--accent-color), var(--primary-color));
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(113, 128, 150, 0.3);
+        }
+
+        .cta-button:hover {
+            transform: scale(1.02);
+            box-shadow: 0 15px 40px rgba(113, 128, 150, 0.4);
+        }
+
+        /* Sections */
+        .section {
+            padding: 5rem 0;
+            position: relative;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+            background: linear-gradient(45deg, var(--accent-color), #fff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Glass morphism cards */
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .glass-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            border-color: var(--accent-color);
+        }
+
+        /* Enhanced glass cards for clickable functionality */
+        .glass-card.clickable {
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .glass-card.clickable:hover::before {
+            left: 100%;
+        }
+
+        .glass-card.clickable:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 25px 80px rgba(113, 128, 150, 0.3);
+            border-color: var(--accent-color);
+        }
+
+        .glass-card.clickable h3 {
+            color: var(--accent-color);
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+            transition: color 0.3s ease;
+        }
+
+        .glass-card.clickable:hover h3 {
+            color: #fff;
+        }
+
+        .glass-card.clickable:hover::after {
+            opacity: 1;
+            right: 1.5rem;
+        }
+
+        /* Video Gallery */
+        .video-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .video-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 15px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .video-card:hover {
+            transform: scale(1.02);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+        }
+
+        .video-card video {
+            width: 100%;
+            height: 250px;
+            object-fit: contain;
+        }
+
+        .video-card .caption {
+            padding: 1rem;
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        /* About section */
+        .about-content {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 3rem;
+            align-items: start;
+            margin-top: 2rem;
+        }
+
+        /* Headshot container */
+        .headshot-container {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        .headshot-image {
+            width: 100%;
+            max-width: 100%;
+            height: auto;
+            border-radius: 20px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 3px solid var(--glass-border);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            object-fit: contain;
+        }
+
+        /* Placeholder for when no image is provided */
+        .headshot-placeholder {
+            width: 100%;
+            max-width: 300px;
+            height: 400px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 2px dashed var(--glass-border);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            color: var(--accent-color);
+            font-size: 1.1rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .headshot-placeholder:hover {
+            border-color: var(--accent-color);
+            background: rgba(113, 128, 150, 0.05);
+        }
+
+        .headshot-placeholder i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.6;
+        }
+
+        .essay-content {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 3px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 2rem;
+            line-height: 1.8;
+        }
+
+        .essay-content p {
+            margin-bottom: 1.5rem;
+        }
+
+        /* Floating action button */
+        .fab {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(45deg, var(--accent-color), var(--primary-color));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 30px rgba(113, 128, 150, 0.3);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .fab:hover {
+            transform: scale(1.1);
+            box-shadow: 0 15px 40px rgba(113, 128, 150, 0.4);
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in {
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .about-content {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+
+            .headshot-image,
+            .headshot-placeholder {
+                max-width: 250px;
+            }
+
+            .video-gallery {
+                grid-template-columns: 1fr;
+            }
+
+            .container {
+                padding: 0 1rem;
+            }
+        }
+
+        /* Smooth scrolling */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Section backgrounds */
+        .section:nth-child(even) {
+            background: rgba(0, 0, 0, 0.1);
+        }
+
+        .cursor {
+            display: inline-block;
+            animation: blink 1s infinite;
+            color: var(--text-light);
+        }
+
+        @keyframes blink {
+
+            0%,
+            50% {
+                opacity: 1;
+            }
+
+            51%,
+            100% {
+                opacity: 0;
+            }
+        }
+
+        #typed-text {
+            color: var(--text-light);
+            font-weight: bold;
+        }
+
+        /* Contact Form Styling */
+        .contact-form {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 2px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 2.5rem;
+            max-width: 600px;
+            margin: 0 auto;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .contact-form:hover {
+            border-color: rgba(113, 128, 150, 0.3);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .form-group {
+            margin-bottom: 2rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--accent-color);
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .form-input,
+        .form-textarea {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 1rem 1.25rem;
+            color: var(--text-light);
+            font-size: 1rem;
+            font-family: inherit;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .form-input:focus,
+        .form-textarea:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 0 20px rgba(113, 128, 150, 0.2);
+        }
+
+        .form-input::placeholder,
+        .form-textarea::placeholder {
+            color: rgba(226, 232, 240, 0.6);
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .form-submit {
+            background: linear-gradient(45deg, var(--accent-color), var(--primary-color));
+            border: none;
+            border-radius: 12px;
+            padding: 1rem 2.5rem;
+            color: white;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(113, 128, 150, 0.3);
+        }
+
+        .form-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 40px rgba(113, 128, 150, 0.4);
+        }
+
+        .form-submit:active {
+            transform: translateY(0);
+        }
+
+        .resume-link {
+            display: inline-block;
+            margin-top: 2rem;
+            padding: 1rem 2rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid var(--glass-border);
+            border-radius: 12px;
+            color: var(--text-light);
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .resume-link:hover {
+            border-color: var(--accent-color);
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(113, 128, 150, 0.2);
+        }
+
+        .contact-content {
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Conway's Game of Life Background -->
+    <div class="bg-animation">
+        <canvas id="gameOfLifeCanvas"></canvas>
+    </div>
+
+    <!-- Navigation 
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">Aidan Lee-Calamera</div>
+        </div>
+    </nav>
+    -->
+
+    <!-- Hero Section -->
+    <section id="home" class="hero">
+        <div class="hero-content">
+            <img src="imgs/AL_Logo.png" alt="Aidan's Lab" width="30%" height="30%">
+            <h1>Aidan Lee-Calamera</h1>
+            <div
+                style="display: flex; justify-content: center; align-items: center; gap: 1.5rem; margin-bottom: 0.5rem;">
+                <a href="https://www.youtube.com/@Aidans_Lab" target="_blank"
+                    style="transition: transform 0.3s ease, filter 0.3s ease; display: inline-block;">
+                    <img src="imgs/youtube.svg" alt="YouTube" width="40" height="40"
+                        style="filter: brightness(0.85); transition: filter 0.3s ease;">
+                </a>
+                <a href="https://github.com/AidansLab" target="_blank"
+                    style="transition: transform 0.3s ease, filter 0.3s ease; display: inline-block;">
+                    <img src="imgs/github.svg" alt="GitHub" width="40" height="40"
+                        style="filter: brightness(0.85); transition: filter 0.3s ease;">
+                </a>
+            </div>
+            <p>Combining <span id="typed-text"></span><span class="cursor">
+                    <bold>|</bold>
+                </span></p>
+            <a href="#about" class="cta-button">About Me</a>
+            &nbsp;&nbsp;
+            <a href="#projects" class="cta-button">My Work</a>
+            &nbsp;&nbsp;
+            <a href="#contact" class="cta-button">Contact Me</a>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="section">
+        <div class="container">
+            <h2 class="section-title fade-in">About Me</h2>
+            <div class="about-content">
+                <div class="headshot-container fade-in">
+                    <img src="imgs/headshot.jpg" alt="Aidan Lee-Calamera" class="headshot-image">
+                </div>
+                <div class="essay-content fade-in">
+                    <p>Mechatronics has always captivated me, offering the perfect blend of hands-on work; woodworking,
+                        metalworking, designing and 3d printing mechanical parts, designing and soldering circuits. From
+                        a young age I was fascinated by the inner workings of household devices, often disassembling
+                        them to understand their mechanisms and electronics, then improving their functionality, or even
+                        bringing discarded and broken items back to life.</p>
+                    <p>The biggest project I have undertaken was my two year long development of a 1:1 life sized fully
+                        working K9 from Doctor Who. I started the project in 2016, utilizing scavenged parts from a
+                        hoverboard for its wheels and a custom metal two axis armature for it's tail.</p>
+                    <p>Throughout my journey as a builder, tinkerer, and designer, three projects stand out: a custom
+                        designed and built guitar, a nuclear fusor which I exhibited at Open Sauce (a maker fair in San
+                        Francisco), and the 1:1 scale fully functional K9. Each of these projects taught me new skills
+                        and helped me expand my existing knowledge.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Projects Section -->
+    <section id="projects" class="section">
+        <div class="container">
+            <h2 class="section-title fade-in">Featured Projects</h2>
+            <div class="glass-card clickable fade-in" onclick="scrollToSection('k9videos')">
+                <h3>Life-Sized K9 Robot</h3>
+                <p>A fully functional 1:1 scale replica of K9 from Doctor Who, complete with remote controlled movement,
+                    extending nose mechanism, and ear movement. Built from MDF, brass, and 3d printed parts, with custom
+                    electronics including hub motors, Raspberry Pi control, and wireless Xbox controller integration.
+                </p>
+            </div>
+            <div class="glass-card clickable fade-in" onclick="scrollToSection('electronics')">
+                <h3>Electronics Projects</h3>
+                <p>Work with high-voltage including a Jacob's Ladder with custom acrylic enclosure and circuit board,
+                    Tesla coil powered with salvaged components, nuclear fusor, and other high-voltage experiments.</p>
+            </div>
+            <div class="glass-card clickable fade-in" onclick="scrollToSection('miscvideos')">
+                <h3>Miscellaneous Projects</h3>
+                <p>Various projects including a Predator costume with integrated electronics, custom designed and
+                    manufactured parts, and multiple material techniques learned specifically for this one-week build,
+                    and other short projects.</p>
+            </div>
+            <div class="glass-card clickable fade-in" onclick="window.location.href='pip-cam.html'">
+                <h3>Pip-Cam Product</h3>
+                <p>A professional camera attachment for The Wand Company's Pip-Boy 3000 MK V and 3000a, enabling users
+                    to take pictures with their Pip-Boy device. High-resolution imaging meets retro-futuristic design.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- K9 Videos Section -->
+    <section id="k9videos" class="section">
+        <div class="container">
+            <h2 class="section-title fade-in">K9 Robot Videos</h2>
+            <div class="video-gallery">
+                <div class="video-card fade-in">
+                    <video controls>
+                        <source src="vids/K9_1.mp4" type="video/mp4">
+                    </video>
+                    <div class="caption">Hub BLDC motors used to make K9 mobile</div>
+                </div>
+                <div class="video-card fade-in">
+                    <video controls>
+                        <source src="vids/K9_2.mp4" type="video/mp4">
+                    </video>
+                    <div class="caption">K9 controlled by Xbox 360 controller</div>
+                </div>
+                <div class="video-card fade-in">
+                    <video controls>
+                        <source src="vids/K9_3.mp4" type="video/mp4">
+                    </video>
+                    <div class="caption">Horizontal extension mechanism for K9's nose</div>
+                </div>
+                <div class="video-card fade-in">
+                    <video controls>
+                        <source src="vids/K9_4.mp4" type="video/mp4">
+                    </video>
+                    <div class="caption">Nose mechanism installed and functioning</div>
+                </div>
+                <div class="video-card fade-in">
+                    <video controls>
+                        <source src="vids/K9_5.mp4" type="video/mp4">
+                    </video>
+                    <div class="caption">Mechanism for opposing ear movements</div>
+                </div>
+                <div class="video-card fade-in">
+                    <video controls>
+                        <source src="vids/K9_6.mp4" type="video/mp4">
+                    </video>
+                    <div class="caption">Ears installed and operational</div>
+                </div>
+                <div class="video-card fade-in">
+                    <video controls>
+                        <source src="vids/K9_9.mp4" type="video/mp4">
+                    </video>
+                    <div class="caption">K9's tail mechanism</div>
+                </div>
+                <div class="video-card fade-in">
+                    <video controls>
+                        <source src="vids/K9_7.mp4" type="video/mp4">
+                    </video>
+                    <div class="caption">K9 with full electronics installation</div>
+                </div>
+                <div class="video-card fade-in">
+                    <video controls>
+                        <source src="vids/K9_8.mp4" type="video/mp4">
+                    </video>
+                    <div class="caption">K9 fully assembled and ready</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- High Voltage Videos Section -->
+    <section id="electronics" class="section">
+        <div class="container">
+            <h2 class="section-title fade-in">Electronics Projects</h2>
+            <div class="video-gallery">
+                <div class="video-card fade-in">
+                    <video controls>
+                        <source src="vids/Fusordemo.mp4" type="video/mp4">
+                    </video>
+                    <div class="caption">A quick demo of the nuclear fusor exhibited at Open Sauce</div>
+                </div>
+                <div class="video-card fade-in">
+                    <video controls>
+                        <source
+                            src="https://github.com/AidanLeeCalamera/AidanLeeCalamera.github.io/raw/refs/heads/master/vids/Codemikointerview.mp4"
+                            type="video/mp4">
+                    </video>
+                    <div class="caption">An interview I did live about my nuclear fusor</div>
+                </div>
+                <div class="video-card fade-in">
+                    <video controls>
+                        <source src="vids/JacobsLadder.mp4" type="video/mp4">
+                    </video>
+                    <div class="caption">Custom-built Jacob's Ladder</div>
+                </div>
+                <div class="video-card fade-in">
+                    <video controls>
+                        <source src="vids/ElectroMagnet.mp4" type="video/mp4">
+                    </video>
+                    <div class="caption">Electromagnet from microwave transformer</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Misc Videos Section -->
+    <section id="miscvideos" class="section">
+        <div class="container">
+            <h2 class="section-title fade-in">Miscellaneous Projects</h2>
+            <div class="video-gallery">
+                <div class="video-card fade-in">
+                    <video controls>
+                        <source src="vids/Guitar.mp4" type="video/mp4">
+                    </video>
+                    <div class="caption">My custom designed and built guitar</div>
+                </div>
+                <div class="video-card fade-in">
+                    <video controls>
+                        <source src="vids/Predator.mp4" type="video/mp4">
+                    </video>
+                    <div class="caption">Predator costume with custom electronics</div>
+                </div>
+                <div class="video-card fade-in">
+                    <video controls>
+                        <source src="vids/Flamethrower_V1.mp4" type="video/mp4">
+                    </video>
+                    <div class="caption">Hydrogen generator powered flame device</div>
+                </div>
+                <div class="video-card fade-in">
+                    <video controls>
+                        <source src="vids/CandyCaneCanon_2.mp4" type="video/mp4">
+                    </video>
+                    <div class="caption">Bungee cord cannon shooting projectiles</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="section">
+        <div class="container">
+            <h2 class="section-title fade-in">Contact Me</h2>
+            <div class="contact-content fade-in">
+                <div class="contact-form">
+                    <form id="contactForm">
+                        <div class="form-group">
+                            <label for="message">Message me here or email me at contact@aidan.calamera.com</label>
+                            <textarea id="message" name="message" class="form-textarea" placeholder=""
+                                required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <button type="submit" class="form-submit">Send Message</button>
+                            <br>
+                            <a href="imgs/CV.pdf" class="resume-link" target="_blank">My Resume</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Floating Action Button -->
+    <div class="fab" onclick="scrollToTop()">
+        <span style="font-size: 24px;">↑</span>
+    </div>
+
+    <script>
+        document.getElementById('contactForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const message = document.getElementById('message').value;
+
+            const subject = encodeURIComponent('Contact via Portfolio');
+            const body = encodeURIComponent(`${message}`);
+
+            window.open(`mailto:contact@aidan.calamera.com?subject=${subject}&body=${body}`);
+        });
+    </script>
+
+    <script>
+        // Conway's Game of Life
+        class GameOfLife {
+            constructor(canvas) {
+                this.canvas = canvas;
+                this.ctx = canvas.getContext('2d');
+                this.cellSize = 8;
+                this.cols = 0;
+                this.rows = 0;
+                this.grid = [];
+                this.nextGrid = [];
+
+                this.resize();
+                this.init();
+                this.animate();
+
+                window.addEventListener('resize', () => this.resize());
+            }
+
+            resize() {
+                this.canvas.width = window.innerWidth;
+                this.canvas.height = window.innerHeight;
+                this.cols = Math.floor(this.canvas.width / this.cellSize);
+                this.rows = Math.floor(this.canvas.height / this.cellSize);
+                this.init();
+            }
+
+            init() {
+                this.grid = [];
+                this.nextGrid = [];
+
+                // Initialize grids
+                for (let x = 0; x < this.cols; x++) {
+                    this.grid[x] = [];
+                    this.nextGrid[x] = [];
+                    for (let y = 0; y < this.rows; y++) {
+                        this.grid[x][y] = Math.random() > 0.85 ? 1 : 0;
+                        this.nextGrid[x][y] = 0;
+                    }
+                }
+            }
+
+            countNeighbors(x, y) {
+                let count = 0;
+                for (let i = -1; i <= 1; i++) {
+                    for (let j = -1; j <= 1; j++) {
+                        if (i === 0 && j === 0) continue;
+
+                        let nx = (x + i + this.cols) % this.cols;
+                        let ny = (y + j + this.rows) % this.rows;
+                        count += this.grid[nx][ny];
+                    }
+                }
+                return count;
+            }
+
+            update() {
+                // Calculate next generation
+                for (let x = 0; x < this.cols; x++) {
+                    for (let y = 0; y < this.rows; y++) {
+                        let neighbors = this.countNeighbors(x, y);
+                        let current = this.grid[x][y];
+
+                        if (current === 1) {
+                            this.nextGrid[x][y] = (neighbors === 2 || neighbors === 3) ? 1 : 0;
+                        } else {
+                            this.nextGrid[x][y] = neighbors === 3 ? 1 : 0;
+                        }
+                    }
+                }
+
+                // Swap grids
+                [this.grid, this.nextGrid] = [this.nextGrid, this.grid];
+            }
+
+            draw() {
+                this.ctx.fillStyle = '#000000';
+                this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+                this.ctx.fillStyle = '#718096';
+                for (let x = 0; x < this.cols; x++) {
+                    for (let y = 0; y < this.rows; y++) {
+                        if (this.grid[x][y] === 1) {
+                            this.ctx.fillRect(
+                                x * this.cellSize,
+                                y * this.cellSize,
+                                this.cellSize - 1,
+                                this.cellSize - 1
+                            );
+                        }
+                    }
+                }
+            }
+
+            animate() {
+                this.update();
+                this.draw();
+                setTimeout(() => this.animate(), 150);
+            }
+        }
+
+        // Initialize Game of Life
+        function initGameOfLife() {
+            const canvas = document.getElementById('gameOfLifeCanvas');
+            new GameOfLife(canvas);
+        }
+
+        // Smooth scroll to top
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Smooth scroll to specific section
+        function scrollToSection(sectionId) {
+            const target = document.getElementById(sectionId);
+            if (target) {
+                target.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        }
+
+        // Intersection Observer for animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        // Initialize animations on load
+        document.addEventListener('DOMContentLoaded', () => {
+            initGameOfLife();
+
+            // Observe fade-in elements
+            document.querySelectorAll('.fade-in').forEach(el => {
+                el.style.opacity = '0';
+                el.style.transform = 'translateY(30px)';
+                el.style.transition = 'opacity 0.8s ease, transform 0.8s ease';
+                observer.observe(el);
+            });
+        });
+
+        // Navbar scroll effect
+        window.addEventListener('scroll', () => {
+            const navbar = document.querySelector('.navbar');
+            if (window.scrollY > 100) {
+                navbar.style.background = 'rgba(15, 15, 35, 0.98)';
+            } else {
+                navbar.style.background = 'rgba(15, 15, 35, 0.95)';
+            }
+        });
+
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>
