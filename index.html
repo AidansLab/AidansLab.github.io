@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <script type="text/javascript" src="Scripts/typewriter.js"></script>
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -53,8 +54,15 @@
         }
 
         @keyframes float {
-            0%, 100% { transform: translateY(0px) rotate(0deg); }
-            50% { transform: translateY(-20px) rotate(180deg); }
+
+            0%,
+            100% {
+                transform: translateY(0px) rotate(0deg);
+            }
+
+            50% {
+                transform: translateY(-20px) rotate(180deg);
+            }
         }
 
         /* Navigation */
@@ -115,8 +123,13 @@
         }
 
         @keyframes glow {
-            from { filter: drop-shadow(0 0 20px rgba(113, 128, 150, 0.3)); }
-            to { filter: drop-shadow(0 0 30px rgba(113, 128, 150, 0.6)); }
+            from {
+                filter: drop-shadow(0 0 20px rgba(113, 128, 150, 0.3));
+            }
+
+            to {
+                filter: drop-shadow(0 0 30px rgba(113, 128, 150, 0.6));
+            }
         }
 
         .hero p {
@@ -351,6 +364,7 @@
                 opacity: 0;
                 transform: translateY(30px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -399,6 +413,7 @@
         .section:nth-child(even) {
             background: rgba(0, 0, 0, 0.1);
         }
+
         .cursor {
             display: inline-block;
             animation: blink 1s infinite;
@@ -406,15 +421,23 @@
         }
 
         @keyframes blink {
-            0%, 50% { opacity: 1; }
-            51%, 100% { opacity: 0; }
+
+            0%,
+            50% {
+                opacity: 1;
+            }
+
+            51%,
+            100% {
+                opacity: 0;
+            }
         }
 
         #typed-text {
             color: var(--text-light);
             font-weight: bold;
         }
-        
+
         /* Contact Form Styling */
         .contact-form {
             background: var(--glass-bg);
@@ -523,9 +546,9 @@
         .contact-content {
             text-align: center;
         }
-
     </style>
 </head>
+
 <body>
     <!-- Conway's Game of Life Background -->
     <div class="bg-animation">
@@ -543,11 +566,24 @@
     <!-- Hero Section -->
     <section id="home" class="hero">
         <div class="hero-content">
-            <a href="https://www.youtube.com/@Aidans_Lab" target="_blank">
-                <img src="imgs/AL_Logo.png" alt="Aidan's Lab" width="30%" height="30%">
-            </a>
+            <img src="imgs/AL_Logo.png" alt="Aidan's Lab" width="30%" height="30%">
             <h1>Aidan Lee-Calamera</h1>
-            <p>Combining <span id="typed-text"></span><span class="cursor"><bold>|</bold></span></p>
+            <div
+                style="display: flex; justify-content: center; align-items: center; gap: 1.5rem; margin-bottom: 0.5rem;">
+                <a href="https://www.youtube.com/@Aidans_Lab" target="_blank"
+                    style="transition: transform 0.3s ease, filter 0.3s ease; display: inline-block;">
+                    <img src="imgs/youtube.svg" alt="YouTube" width="40" height="40"
+                        style="filter: brightness(0.85); transition: filter 0.3s ease;">
+                </a>
+                <a href="https://github.com/AidansLab" target="_blank"
+                    style="transition: transform 0.3s ease, filter 0.3s ease; display: inline-block;">
+                    <img src="imgs/github.svg" alt="GitHub" width="40" height="40"
+                        style="filter: brightness(0.85); transition: filter 0.3s ease;">
+                </a>
+            </div>
+            <p>Combining <span id="typed-text"></span><span class="cursor">
+                    <bold>|</bold>
+                </span></p>
             <a href="#about" class="cta-button">About Me</a>
             &nbsp;&nbsp;
             <a href="#projects" class="cta-button">My Work</a>
@@ -565,9 +601,18 @@
                     <img src="imgs/headshot.jpg" alt="Aidan Lee-Calamera" class="headshot-image">
                 </div>
                 <div class="essay-content fade-in">
-                    <p>Mechatronics has always captivated me, offering the perfect blend of hands-on work; woodworking, metalworking, designing and 3d printing mechanical parts, designing and soldering circuits. From a young age I was fascinated by the inner workings of household devices, often disassembling them to understand their mechanisms and electronics, then improving their functionality, or even bringing discarded and broken items back to life.</p>
-                    <p>The biggest project I have undertaken was my two year long development of a 1:1 life sized fully working K9 from Doctor Who. I started the project in 2016, utilizing scavenged parts from a hoverboard for its wheels and a custom metal two axis armature for it's tail.</p>
-                    <p>Throughout my journey as a builder, tinkerer, and designer, three projects stand out: a custom designed and built guitar, a nuclear fusor which I exhibited at Open Sauce (a maker fair in San Francisco), and the 1:1 scale fully functional K9. Each of these projects taught me new skills and helped me expand my existing knowledge.</p>
+                    <p>Mechatronics has always captivated me, offering the perfect blend of hands-on work; woodworking,
+                        metalworking, designing and 3d printing mechanical parts, designing and soldering circuits. From
+                        a young age I was fascinated by the inner workings of household devices, often disassembling
+                        them to understand their mechanisms and electronics, then improving their functionality, or even
+                        bringing discarded and broken items back to life.</p>
+                    <p>The biggest project I have undertaken was my two year long development of a 1:1 life sized fully
+                        working K9 from Doctor Who. I started the project in 2016, utilizing scavenged parts from a
+                        hoverboard for its wheels and a custom metal two axis armature for it's tail.</p>
+                    <p>Throughout my journey as a builder, tinkerer, and designer, three projects stand out: a custom
+                        designed and built guitar, a nuclear fusor which I exhibited at Open Sauce (a maker fair in San
+                        Francisco), and the 1:1 scale fully functional K9. Each of these projects taught me new skills
+                        and helped me expand my existing knowledge.</p>
                 </div>
             </div>
         </div>
@@ -579,19 +624,27 @@
             <h2 class="section-title fade-in">Featured Projects</h2>
             <div class="glass-card clickable fade-in" onclick="scrollToSection('k9videos')">
                 <h3>Life-Sized K9 Robot</h3>
-                <p>A fully functional 1:1 scale replica of K9 from Doctor Who, complete with remote controlled movement, extending nose mechanism, and ear movement. Built from MDF, brass, and 3d printed parts, with custom electronics including hub motors, Raspberry Pi control, and wireless Xbox controller integration.</p>
+                <p>A fully functional 1:1 scale replica of K9 from Doctor Who, complete with remote controlled movement,
+                    extending nose mechanism, and ear movement. Built from MDF, brass, and 3d printed parts, with custom
+                    electronics including hub motors, Raspberry Pi control, and wireless Xbox controller integration.
+                </p>
             </div>
             <div class="glass-card clickable fade-in" onclick="scrollToSection('electronics')">
                 <h3>Electronics Projects</h3>
-                <p>Work with high-voltage including a Jacob's Ladder with custom acrylic enclosure and circuit board, Tesla coil powered with salvaged components, nuclear fusor, and other high-voltage experiments.</p>
+                <p>Work with high-voltage including a Jacob's Ladder with custom acrylic enclosure and circuit board,
+                    Tesla coil powered with salvaged components, nuclear fusor, and other high-voltage experiments.</p>
             </div>
             <div class="glass-card clickable fade-in" onclick="scrollToSection('miscvideos')">
                 <h3>Miscellaneous Projects</h3>
-                <p>Various projects including a Predator costume with integrated electronics, custom designed and manufactured parts, and multiple material techniques learned specifically for this one-week build, and other short projects.</p>
+                <p>Various projects including a Predator costume with integrated electronics, custom designed and
+                    manufactured parts, and multiple material techniques learned specifically for this one-week build,
+                    and other short projects.</p>
             </div>
             <div class="glass-card clickable fade-in" onclick="window.location.href='pip-cam.html'">
                 <h3>Pip-Cam Product</h3>
-                <p>A professional camera attachment for The Wand Company's Pip-Boy 3000 MK V and 3000a, enabling users to take pictures with their Pip-Boy device. High-resolution imaging meets retro-futuristic design.</p>
+                <p>A professional camera attachment for The Wand Company's Pip-Boy 3000 MK V and 3000a, enabling users
+                    to take pictures with their Pip-Boy device. High-resolution imaging meets retro-futuristic design.
+                </p>
             </div>
         </div>
     </section>
@@ -672,7 +725,9 @@
                 </div>
                 <div class="video-card fade-in">
                     <video controls>
-                        <source src="https://github.com/AidanLeeCalamera/AidanLeeCalamera.github.io/raw/refs/heads/master/vids/Codemikointerview.mp4" type="video/mp4">
+                        <source
+                            src="https://github.com/AidanLeeCalamera/AidanLeeCalamera.github.io/raw/refs/heads/master/vids/Codemikointerview.mp4"
+                            type="video/mp4">
                     </video>
                     <div class="caption">An interview I did live about my nuclear fusor</div>
                 </div>
@@ -734,7 +789,8 @@
                     <form id="contactForm">
                         <div class="form-group">
                             <label for="message">Message me here or email me at contact@aidan.calamera.com</label>
-                            <textarea id="message" name="message" class="form-textarea" placeholder="" required></textarea>
+                            <textarea id="message" name="message" class="form-textarea" placeholder=""
+                                required></textarea>
                         </div>
                         <div class="form-group">
                             <button type="submit" class="form-submit">Send Message</button>
@@ -753,18 +809,18 @@
     </div>
 
     <script>
-        document.getElementById('contactForm').addEventListener('submit', function(e) {
+        document.getElementById('contactForm').addEventListener('submit', function (e) {
             e.preventDefault();
-            
+
             const message = document.getElementById('message').value;
-            
+
             const subject = encodeURIComponent('Contact via Portfolio');
             const body = encodeURIComponent(`${message}`);
-            
+
             window.open(`mailto:contact@aidan.calamera.com?subject=${subject}&body=${body}`);
         });
     </script>
-    
+
     <script>
         // Conway's Game of Life
         class GameOfLife {
@@ -776,14 +832,14 @@
                 this.rows = 0;
                 this.grid = [];
                 this.nextGrid = [];
-                
+
                 this.resize();
                 this.init();
                 this.animate();
-                
+
                 window.addEventListener('resize', () => this.resize());
             }
-            
+
             resize() {
                 this.canvas.width = window.innerWidth;
                 this.canvas.height = window.innerHeight;
@@ -791,11 +847,11 @@
                 this.rows = Math.floor(this.canvas.height / this.cellSize);
                 this.init();
             }
-            
+
             init() {
                 this.grid = [];
                 this.nextGrid = [];
-                
+
                 // Initialize grids
                 for (let x = 0; x < this.cols; x++) {
                     this.grid[x] = [];
@@ -806,13 +862,13 @@
                     }
                 }
             }
-            
+
             countNeighbors(x, y) {
                 let count = 0;
                 for (let i = -1; i <= 1; i++) {
                     for (let j = -1; j <= 1; j++) {
                         if (i === 0 && j === 0) continue;
-                        
+
                         let nx = (x + i + this.cols) % this.cols;
                         let ny = (y + j + this.rows) % this.rows;
                         count += this.grid[nx][ny];
@@ -820,14 +876,14 @@
                 }
                 return count;
             }
-            
+
             update() {
                 // Calculate next generation
                 for (let x = 0; x < this.cols; x++) {
                     for (let y = 0; y < this.rows; y++) {
                         let neighbors = this.countNeighbors(x, y);
                         let current = this.grid[x][y];
-                        
+
                         if (current === 1) {
                             this.nextGrid[x][y] = (neighbors === 2 || neighbors === 3) ? 1 : 0;
                         } else {
@@ -835,15 +891,15 @@
                         }
                     }
                 }
-                
+
                 // Swap grids
                 [this.grid, this.nextGrid] = [this.nextGrid, this.grid];
             }
-            
+
             draw() {
                 this.ctx.fillStyle = '#000000';
                 this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-                
+
                 this.ctx.fillStyle = '#718096';
                 for (let x = 0; x < this.cols; x++) {
                     for (let y = 0; y < this.rows; y++) {
@@ -858,7 +914,7 @@
                     }
                 }
             }
-            
+
             animate() {
                 this.update();
                 this.draw();
@@ -906,7 +962,7 @@
         // Initialize animations on load
         document.addEventListener('DOMContentLoaded', () => {
             initGameOfLife();
-            
+
             // Observe fade-in elements
             document.querySelectorAll('.fade-in').forEach(el => {
                 el.style.opacity = '0';
@@ -941,4 +997,5 @@
         });
     </script>
 </body>
+
 </html>

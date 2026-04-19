@@ -431,6 +431,93 @@
             border: 1px dashed var(--terminal-green);
         }
 
+        /* Sample Photos Slideshow */
+        .slideshow-section {
+            margin-top: 1rem;
+            border: 2px solid var(--terminal-green);
+            box-shadow: var(--glow);
+        }
+
+        .slideshow-header {
+            background: var(--terminal-green);
+            color: var(--terminal-bg);
+            padding: 0.5rem 1rem;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .slideshow-body {
+            display: grid;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .slide {
+            grid-column: 1;
+            grid-row: 1;
+            width: 100%;
+            opacity: 0;
+            transition: opacity 0.6s ease;
+            pointer-events: none;
+        }
+
+        .slide.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .slide img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .slideshow-controls {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.5rem 1rem;
+            background: rgba(0, 0, 0, 0.7);
+            border-top: 1px solid var(--terminal-green);
+        }
+
+        .slide-btn {
+            background: transparent;
+            border: 1px solid var(--terminal-green);
+            color: var(--terminal-green);
+            font-family: inherit;
+            font-size: 1.2rem;
+            padding: 0.2rem 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .slide-btn:hover {
+            background: var(--terminal-green);
+            color: var(--terminal-bg);
+        }
+
+        .slide-dots {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .slide-dot {
+            width: 10px;
+            height: 10px;
+            border: 1px solid var(--terminal-green);
+            background: transparent;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .slide-dot.active {
+            background: var(--terminal-green);
+            box-shadow: var(--glow);
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
             .main-grid {
@@ -494,6 +581,32 @@
                         <img id="main-feed" src="imgs/placeholder.png" alt="Pip-Cam Feed">
                     </div>
                 </div>
+
+                <!-- Sample Photos Slideshow -->
+                <div class="slideshow-section">
+                    <div class="slideshow-header">
+                        <span>>> SAMPLE_PHOTOS</span>
+                        <span id="slideCounter">01 / 05</span>
+                    </div>
+                    <div class="slideshow-body" id="slideshowBody">
+                        <div class="slide active"><img src="imgs/Pip-Cam_Pic1.png" alt="Pip-Cam Sample 1"></div>
+                        <div class="slide"><img src="imgs/Pip-Cam_Pic2.png" alt="Pip-Cam Sample 2"></div>
+                        <div class="slide"><img src="imgs/Pip-Cam_Pic3.png" alt="Pip-Cam Sample 3"></div>
+                        <div class="slide"><img src="imgs/Pip-Cam_Pic4.png" alt="Pip-Cam Sample 4"></div>
+                        <div class="slide"><img src="imgs/Pip-Cam_Pic5.png" alt="Pip-Cam Sample 5"></div>
+                    </div>
+                    <div class="slideshow-controls">
+                        <button class="slide-btn" onclick="changeSlide(-1)">&#9664;</button>
+                        <div class="slide-dots" id="slideDots">
+                            <div class="slide-dot active" onclick="userGoToSlide(0)"></div>
+                            <div class="slide-dot" onclick="userGoToSlide(1)"></div>
+                            <div class="slide-dot" onclick="userGoToSlide(2)"></div>
+                            <div class="slide-dot" onclick="userGoToSlide(3)"></div>
+                            <div class="slide-dot" onclick="userGoToSlide(4)"></div>
+                        </div>
+                        <button class="slide-btn" onclick="changeSlide(1)">&#9654;</button>
+                    </div>
+                </div>
             </div>
 
             <!-- Right: Data -->
@@ -501,13 +614,13 @@
                 <div class="product-title-block">
                     <h2>PIP-CAM</h2>
                     <div style="display: flex; align-items: baseline; margin-top: 0.5rem;">
-                        <span class="price">$49.99</span>
+                        <span class="price">$59.99</span>
                         <span class="status">COMING SOON</span>
                     </div>
                 </div>
 
                 <div class="description-text" style="font-size: 0.9rem; opacity: 0.9; margin-bottom: 2rem;">
-                    Enhance your Pip-Boy 3000 MK V or 3000a with picture capabilities.
+                    Take pictures with your Pip-Boy 3000 MK V or 3000a.
                     This RobCo certified attachment integrates seamlessly with existing Pip-Boy units.
                 </div>
 
@@ -564,6 +677,7 @@
             </div>
         </div>
 
+
         <div class="resources-footer">
             <div style="margin-bottom: 0.5rem; font-weight: bold;">>> DOWNLOADS_DIRECTORY:</div>
             <div class="file-list">
@@ -615,6 +729,49 @@
             });
             document.getElementById(tabId).classList.add('active');
         }
+
+        // Slideshow
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const dots = document.querySelectorAll('.slide-dot');
+        const totalSlides = slides.length;
+
+        function goToSlide(n) {
+            // Internal navigation — does NOT stop the timer
+            slides[currentSlide].classList.remove('active');
+            dots[currentSlide].classList.remove('active');
+            currentSlide = (n + totalSlides) % totalSlides;
+            slides[currentSlide].classList.add('active');
+            dots[currentSlide].classList.add('active');
+            document.getElementById('slideCounter').textContent =
+                String(currentSlide + 1).padStart(2, '0') + ' / ' + String(totalSlides).padStart(2, '0');
+        }
+
+        // Called by arrow buttons — stops auto-advance
+        function changeSlide(dir) { stopSlideshow(); goToSlide(currentSlide + dir); scheduleRestart(); }
+
+        // Called by dot buttons — stops auto-advance
+        function userGoToSlide(n) { stopSlideshow(); goToSlide(n); scheduleRestart(); }
+
+        function stopSlideshow() {
+            if (slideshowTimer) { clearInterval(slideshowTimer); slideshowTimer = null; }
+            if (restartTimer) { clearTimeout(restartTimer); restartTimer = null; }
+        }
+
+        function startSlideshow() {
+            if (!slideshowTimer) {
+                slideshowTimer = setInterval(() => goToSlide(currentSlide + 1), 4000);
+            }
+        }
+
+        function scheduleRestart() {
+            if (restartTimer) clearTimeout(restartTimer);
+            restartTimer = setTimeout(startSlideshow, 5000); // restart after 5s idle
+        }
+
+        let restartTimer = null;
+        // Auto-advance every 4 seconds — calls goToSlide directly, not changeSlide
+        let slideshowTimer = setInterval(() => goToSlide(currentSlide + 1), 4000);
     </script>
 </body>
 
