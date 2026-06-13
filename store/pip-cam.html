@@ -134,13 +134,13 @@
         .image-container {
             flex: 1;
             /* Occupy remaining space */
-            background: #000;
-            border: 1px solid var(--terminal-green);
+            background: #0a0a0a;
             display: flex;
             align-items: center;
             justify-content: center;
             overflow: hidden;
             position: relative;
+            margin-left: -10px;
         }
 
         .image-container img {
@@ -157,13 +157,14 @@
             gap: 0.5rem;
             width: 100px;
             align-items: center;
+            margin-left: 25px;
         }
 
         .nav-arrow {
             background: rgba(0, 20, 0, 0.5);
             border: 1px solid var(--terminal-green);
             color: var(--terminal-green);
-            width: 100%;
+            width: 75%;
             padding: 5px;
             cursor: pointer;
             font-family: inherit;
@@ -213,7 +214,7 @@
             flex-direction: column;
             gap: 0.5rem;
             flex: 1;
-            width: 100%;
+            width: 75%;
             overflow-y: hidden;
             /* Hide default scrollbar, use arrows */
             scroll-behavior: smooth;
@@ -552,24 +553,29 @@
                         <button class="nav-arrow" onclick="scrollThumbs(-1)">▲</button>
 
                         <div class="feed-thumbnails" id="thumbStrip">
-                            <div class="feed-thumb active" onclick="switchFeed('imgs/placeholder.png', this)">
-                                <img src="imgs/placeholder.png" alt="View 1">
+                            <div class="feed-thumb active" onclick="switchFeed('imgs/PC1.jpg', this)">
+                                <img src="imgs/PC1.jpg" alt="View 1">
                             </div>
-                            <div class="feed-thumb" onclick="switchFeed('imgs/placeholder.png', this)">
-                                <img src="imgs/placeholder.png" alt="View 2">
+                            <div class="feed-thumb" onclick="switchFeed('imgs/PC2.jpg', this)">
+                                <img src="imgs/PC2.jpg" alt="View 2">
                             </div>
-                            <div class="feed-thumb" onclick="switchFeed('imgs/placeholder.png', this)">
-                                <img src="imgs/placeholder.png" alt="View 3">
+                            <div class="feed-thumb" onclick="switchFeed('imgs/PC3.jpg', this)">
+                                <img src="imgs/PC3.jpg" alt="View 3">
                             </div>
-                            <div class="feed-thumb" onclick="switchFeed('imgs/placeholder.png', this)">
-                                <img src="imgs/placeholder.png" alt="View 4">
+                            <div class="feed-thumb" onclick="switchFeed('imgs/PC4.jpg', this)">
+                                <img src="imgs/PC4.jpg" alt="View 4">
                             </div>
-                            <div class="feed-thumb" onclick="switchFeed('imgs/placeholder.png', this)">
-                                <img src="imgs/placeholder.png" alt="View 5">
+                            <div class="feed-thumb" onclick="switchFeed('imgs/PC5.jpg', this)">
+                                <img src="imgs/PC5.jpg" alt="View 5">
                             </div>
-                            <!-- More thumbs for scrolling demo -->
-                            <div class="feed-thumb" onclick="switchFeed('imgs/placeholder.png', this)">
-                                <img src="imgs/placeholder.png" alt="View 6">
+                            <div class="feed-thumb" onclick="switchFeed('imgs/PC6.jpg', this)">
+                                <img src="imgs/PC6.jpg" alt="View 6">
+                            </div>
+                            <div class="feed-thumb" onclick="switchFeed('imgs/PC7.jpg', this)">
+                                <img src="imgs/PC7.jpg" alt="View 7">
+                            </div>
+                            <div class="feed-thumb" onclick="switchFeed('imgs/PC8.jpg', this)">
+                                <img src="imgs/PC8.jpg" alt="View 8">
                             </div>
                         </div>
 
@@ -578,7 +584,7 @@
 
                     <!-- Main Image -->
                     <div class="image-container">
-                        <img id="main-feed" src="imgs/placeholder.png" alt="Pip-Cam Feed">
+                        <img id="main-feed" src="imgs/PC1.jpg" alt="Pip-Cam Feed">
                     </div>
                 </div>
 
@@ -620,7 +626,7 @@
                 </div>
 
                 <div class="description-text" style="font-size: 0.9rem; opacity: 0.9; margin-bottom: 2rem;">
-                    Take pictures with your Pip-Boy 3000 MK V or 3000a.
+                    Take pictures with your Pip-Boy 3000 MK V or 3000.
                     This RobCo certified attachment integrates seamlessly with existing Pip-Boy units.
                 </div>
 
@@ -636,7 +642,7 @@
                         <li>View your images right on your Pip-Boy</li>
                         <li>Download your photos with the Pip-Cam companion site</li>
                         <li>Easy installation</li>
-                        <li>Compatible with Pip-Boy 3000 MK V & 3000a</li>
+                        <li>Compatible with Pip-Boy 3000 MK V & 3000</li>
                     </ul>
                 </div>
 
@@ -659,7 +665,7 @@
                     </div>
                     <div class="spec-row">
                         <span>COMPATIBILITY</span>
-                        <span>3000 MK V & 3000a</span>
+                        <span>3000 MK V & 3000</span>
                     </div>
                 </div>
 
@@ -681,11 +687,12 @@
         <div class="resources-footer">
             <div style="margin-bottom: 0.5rem; font-weight: bold;">>> DOWNLOADS_DIRECTORY:</div>
             <div class="file-list">
-                <!--a href="../docs/Pip-Cam-Manual.pdf" class="file-item" target="_blank" disabled=true>[FILE] MANUAL.PDF</a>
+                <a href="../docs/Pip-Cam-Manual.pdf" class="file-item" target="_blank" disabled=true>[FILE]
+                    MANUAL.PDF</a>
                 <a href="#" class="file-item" onclick="alert('ACCESS_DENIED: SERVER_OFFLINE')" target="_blank">[LINK]
                     IMAGE MANAGER</a>
                 <a href="https://github.com/AidansLab/Pip-Cam" class="file-item" target="_blank" disabled=true>[REPO]
-                    GITHUB SOURCE</a-->
+                    GITHUB SOURCE</a>
             </div>
         </div>
     </div>
