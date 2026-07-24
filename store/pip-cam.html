@@ -364,21 +364,124 @@
             border-bottom: none;
         }
 
-        /* Action Bar */
-        .action-bar {
+        /* Waitlist Card */
+        .waitlist-card {
+            width: 100%;
+            max-width: 100%;
             margin-top: auto;
             border-top: 2px solid var(--terminal-green);
-            padding-top: 1.5rem;
-            display: flex;
-            gap: 1rem;
+            background: rgba(0, 0, 0, 0.85);
+            padding: 1.25rem;
+            position: relative;
+            overflow: hidden;
         }
 
-        .btn-terminal {
+        .waitlist-card::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 50%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0.2));
+            background-size: 100% 4px;
+            pointer-events: none;
+            opacity: 0.6;
+        }
+
+        .waitlist-card .helper-text {
+            display: block;
+            font-size: 0.9rem;
+            line-height: 1.4;
+            margin: 0 0 8px 0;
+            padding: 0;
+            color: var(--terminal-green);
+            opacity: 0.8;
+        }
+
+        .waitlist-card .form-body {
+            display: none;
+            margin-top: 0;
+        }
+
+        .waitlist-card .form-body.is-visible {
+            display: block;
+        }
+
+        .waitlist-card input[type="email"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--terminal-green);
+            background: rgba(0, 20, 0, 0.35);
+            color: var(--terminal-green);
+            margin-bottom: 8px;
+            box-sizing: border-box;
+            font-size: 1rem;
+            font-family: inherit;
+            outline: none;
+        }
+
+        .waitlist-card input[type="email"]::placeholder {
+            color: var(--terminal-dim);
+        }
+
+        .waitlist-card input[type="email"]:focus {
+            box-shadow: var(--glow);
+        }
+
+        .waitlist-card button {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--terminal-green);
+            background: rgba(0, 20, 0, 0.5);
+            color: var(--terminal-green);
+            font-size: 1rem;
+            font-family: inherit;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .waitlist-card button:hover {
+            background: var(--terminal-green);
+            color: var(--terminal-bg);
+            box-shadow: var(--glow);
+        }
+
+        .waitlist-card button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .waitlist-card button:disabled:hover {
+            background: rgba(0, 20, 0, 0.5);
+            color: var(--terminal-green);
+            box-shadow: none;
+        }
+
+        .waitlist-card .status-message {
+            display: none;
+            padding: 16px;
+            border: 1px solid var(--terminal-green);
+            background: rgba(0, 20, 0, 0.35);
+            color: var(--terminal-green);
+            line-height: 1.6;
+            font-size: 0.95rem;
+            white-space: pre-line;
+            margin-top: 0.75rem;
+        }
+
+        .waitlist-card .status-message.is-error {
+            border-color: #ff6b6b;
+            color: #ff6b6b;
+            background: rgba(60, 0, 0, 0.35);
+        }
+
+        .waitlist-card .btn-terminal {
             background: var(--terminal-green);
             color: var(--terminal-bg);
             border: none;
             padding: 1rem 5.3rem;
-            /* Increased padding for width */
             font-family: inherit;
             font-weight: bold;
             font-size: 1.2rem;
@@ -388,20 +491,28 @@
             transition: transform 0.1s;
         }
 
-        .btn-terminal:hover {
+        .waitlist-card .btn-terminal:hover {
             transform: scale(1.02);
             background: #33ff33;
         }
 
-        .btn-terminal.secondary {
-            background: transparent;
-            border: 2px solid var(--terminal-green);
-            color: var(--terminal-green);
-            box-shadow: none;
+        .waitlist-card .paypal-form {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            width: 100%;
+            max-width: 280px;
+            margin: 0 auto;
         }
 
-        .btn-terminal.secondary:hover {
-            background: rgba(0, 230, 0, 0.1);
+        .waitlist-card .paypal-form section {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.35rem;
+            flex-wrap: wrap;
         }
 
         /* Resources Footer */
@@ -621,7 +732,7 @@
                     <h2>PIP-CAM</h2>
                     <div style="display: flex; align-items: baseline; margin-top: 0.5rem;">
                         <span class="price">$59.99</span>
-                        <span class="status">COMING SOON</span>
+                        <span class="status" id="product-status">COMING SOON</span>
                     </div>
                 </div>
 
@@ -669,16 +780,31 @@
                     </div>
                 </div>
 
-                <div class="action-bar">
-                    <form action="" method="post" target="_blank"
-                        style="display:inline-grid;justify-items:center;align-content:start;gap:0.5rem; width: 100%;">
-                        <input class="btn-terminal" type="submit" value="BUY" />
-                        <img src="imgs/Debit_Credit.svg" alt="cards" />
-                        <section style="font-size: 0.75rem; color: var(--terminal-green);"> Powered by <img
-                                src="imgs/paypal-wordmark-color.svg" alt="paypal"
-                                style="height:0.875rem;vertical-align:middle; filter: grayscale(100%) brightness(100%) sepia(100%) hue-rotate(50deg) saturate(500%);" />
-                        </section>
+                <div class="waitlist-card">
+                    <form action="https://script.google.com/macros/s/AKfycbwyS9QN4R24pTlqdKteQO_IvOgFSk6GzEGL0zAIZCMRCSwW6_D4oJ1J6AMWDbN6drBo/exec" method="post" id="waitlist-form">
+                        <button type="button" id="show-form-btn">Join Waitlist</button>
+                        <div class="form-body" id="form-body">
+                            <p class="helper-text">
+                                Enter your email address to sign up for the next production run of Pip-Cam.
+                                When units become available, you will receive an email and have 72 hours to complete your purchase.
+                                <b>No deposit required!</b> Note: we do not use your email for any other purpose.
+                            </p>
+                            <input type="email" id="email" name="email" placeholder="your@email.com" required>
+                            <button type="submit" id="submit-btn" disabled>Submit</button>
+                        </div>
+                        <div class="status-message" id="status-message" aria-live="polite"></div>
                     </form>
+
+                    <div id="paypal-container" style="display:none; margin-top: 16px; justify-self: center;">
+                        <form id="paypal-form-object" class="paypal-form" action="https://www.paypal.com/ncp/payment/xxxxxx" method="post" target="_blank">
+                            <input class="btn-terminal" type="submit" value="BUY NOW" />
+                            <img src="imgs/Debit_Credit.svg" alt="cards" />
+                            <section style="font-size: 0.75rem; color: var(--terminal-green);">
+                                Powered by <img src="imgs/paypal-wordmark-color.svg" alt="paypal"
+                                style="height:0.875rem;vertical-align:middle; filter: grayscale(100%) brightness(100%) sepia(100%) hue-rotate(50deg) saturate(500%);" />
+                            </section>
+                        </form>
+                    </div>
                 </div>
                 <div>
             </div>
@@ -780,6 +906,247 @@
         let restartTimer = null;
         // Auto-advance every 4 seconds — calls goToSlide directly, not changeSlide
         let slideshowTimer = setInterval(() => goToSlide(currentSlide + 1), 4000);
+
+        const waitlistShowBtn = document.getElementById('show-form-btn');
+        const waitlistFormBody = document.getElementById('form-body');
+        const waitlistStatusMessage = document.getElementById('status-message');
+        const waitlistEmailInput = document.getElementById('email');
+        const waitlistSubmitBtn = document.getElementById('submit-btn');
+        const waitlistForm = document.getElementById('waitlist-form');
+        const waitlistPaypalContainer = document.getElementById('paypal-container');
+        const waitlistPaypalForm = document.getElementById('paypal-form-object');
+        const productStatusLabel = document.getElementById('product-status');
+
+        function updatePaypalAction(buttonId) {
+            const targetForm = waitlistPaypalForm || (waitlistPaypalContainer ? waitlistPaypalContainer.querySelector('form') : null);
+            if (!targetForm) {
+                console.warn('[paypal] form not found, skipping action update');
+                return;
+            }
+            targetForm.setAttribute('action', `https://www.paypal.com/ncp/payment/${buttonId}`);
+        }
+
+        function isValidWaitlistEmail(value) {
+            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+        }
+
+        function updateWaitlistSubmitState() {
+            waitlistSubmitBtn.disabled = !isValidWaitlistEmail(waitlistEmailInput.value.trim());
+        }
+
+        function showWaitlistStatus(message, isError) {
+            waitlistFormBody.classList.remove('is-visible');
+            waitlistStatusMessage.textContent = message;
+            waitlistStatusMessage.classList.toggle('is-error', Boolean(isError));
+            waitlistStatusMessage.style.display = 'block';
+            waitlistShowBtn.style.display = 'none';
+        }
+
+        function setWaitlistCookie(name, value, days) {
+            const expires = new Date(Date.now() + days * 24 * 60 * 60 * 1000).toUTCString();
+            document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/`;
+        }
+
+        function getWaitlistCookie(name) {
+            const cookies = document.cookie.split(';').map(function (cookie) {
+                return cookie.trim();
+            });
+            return cookies.reduce(function (match, cookie) {
+                if (!match && cookie.indexOf(`${name}=`) === 0) {
+                    return decodeURIComponent(cookie.slice(name.length + 1));
+                }
+                return match;
+            }, '');
+        }
+
+        function getQueryParam(name) {
+            const params = new URLSearchParams(window.location.search);
+            return params.get(name);
+        }
+
+        function checkWaitlistStatus(email) {
+            const actionUrl = waitlistForm.getAttribute('action');
+            const transactionId = getQueryParam('tx');
+            const transactionAmount = getQueryParam('amt');
+            const transactionStatus = getQueryParam('st');
+            const isPurchased = Boolean(transactionId);
+            const urlWithQuery = `${actionUrl}${actionUrl.includes('?') ? '&' : '?'}email=${encodeURIComponent(email)}&action=check${isPurchased ? '&purchased=true' : ''}${transactionId ? `&tx=${encodeURIComponent(transactionId)}` : ''}${transactionAmount ? `&amt=${encodeURIComponent(transactionAmount)}` : ''}${transactionStatus ? `&st=${encodeURIComponent(transactionStatus)}` : ''}`;
+
+            return fetch(urlWithQuery, {
+                method: 'GET',
+                mode: 'cors',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+                }
+            })
+            .then(async function (response) {
+                const contentType = response.headers.get('content-type') || '';
+                let payload = null;
+
+                if (contentType.includes('application/json')) {
+                    payload = await response.json();
+                } else {
+                    const responseText = await response.text();
+                    try {
+                        payload = JSON.parse(responseText);
+                    } catch (error) {
+                        payload = { message: responseText || '' };
+                    }
+                }
+
+                if (!response.ok || (payload && payload.status === 'error')) {
+                    return null;
+                }
+
+                if (payload && typeof payload === 'object') {
+                    const dateAdded = payload.dateSignedUp || null;
+                    const buttonId = payload.buttonId || null;
+                    return { dateAdded, buttonId };
+                }
+
+                return null;
+            })
+            .catch(function () {
+                return null;
+            });
+        }
+
+        function updateWaitlistSignupState(email) {
+            const storedEmail = email || getWaitlistCookie('pipcam_waitlist_email');
+
+            if (!storedEmail) {
+                waitlistShowBtn.textContent = 'Join Waitlist';
+                waitlistShowBtn.disabled = false;
+                waitlistShowBtn.style.display = 'block';
+                waitlistFormBody.classList.remove('is-visible');
+                waitlistPaypalContainer.style.display = 'none';
+                waitlistStatusMessage.style.display = 'none';
+                waitlistStatusMessage.textContent = '';
+                waitlistStatusMessage.classList.remove('is-error');
+                return null;
+            }
+
+            waitlistShowBtn.textContent = 'Checking Availability...';
+            waitlistShowBtn.disabled = true;
+
+            return checkWaitlistStatus(storedEmail).then(function (status) {
+                const transactionId = getQueryParam('tx');
+                const isPurchased = Boolean(transactionId);
+
+                if (isPurchased) {
+                    waitlistShowBtn.textContent = 'Order Completed';
+                    waitlistShowBtn.disabled = true;
+                    waitlistShowBtn.hidden = false;
+                    waitlistShowBtn.style.display = 'block';
+                    waitlistPaypalContainer.style.display = 'none';
+                    if (productStatusLabel) {
+                        productStatusLabel.textContent = 'IN STOCK';
+                    }
+                } else if (status && status.buttonId) {
+                    waitlistShowBtn.textContent = 'In Stock';
+                    waitlistShowBtn.disabled = true;
+                    waitlistShowBtn.hidden = true;
+                    waitlistShowBtn.style.display = 'none';
+                    waitlistPaypalContainer.style.display = 'block';
+                    if (productStatusLabel) {
+                        productStatusLabel.textContent = 'IN STOCK';
+                    }
+                    updatePaypalAction(status.buttonId);
+                } else if (status && status.dateAdded) {
+                    waitlistShowBtn.textContent = 'On Waitlist';
+                    waitlistShowBtn.disabled = true;
+                    waitlistShowBtn.hidden = true;
+                    waitlistShowBtn.style.display = 'none';
+                    waitlistPaypalContainer.style.display = 'none';
+                    if (productStatusLabel) {
+                        productStatusLabel.textContent = 'ON WAITLIST';
+                    }
+                } else {
+                    waitlistShowBtn.textContent = 'Join Waitlist';
+                    waitlistShowBtn.disabled = false;
+                    waitlistShowBtn.hidden = false;
+                    waitlistShowBtn.style.display = 'block';
+                    waitlistPaypalContainer.style.display = 'none';
+                    if (productStatusLabel) {
+                        productStatusLabel.textContent = 'COMING SOON';
+                    }
+                }
+                waitlistFormBody.classList.remove('is-visible');
+                waitlistStatusMessage.style.display = 'none';
+                waitlistStatusMessage.textContent = '';
+                waitlistStatusMessage.classList.remove('is-error');
+                return status;
+            });
+        }
+
+        waitlistShowBtn.addEventListener('click', function () {
+            waitlistFormBody.classList.add('is-visible');
+            waitlistStatusMessage.style.display = 'none';
+            waitlistStatusMessage.textContent = '';
+            waitlistStatusMessage.classList.remove('is-error');
+            waitlistShowBtn.style.display = 'none';
+            waitlistEmailInput.focus();
+            updateWaitlistSubmitState();
+        });
+
+        waitlistEmailInput.addEventListener('input', updateWaitlistSubmitState);
+
+        updateWaitlistSignupState();
+
+        waitlistForm.addEventListener('submit', function (event) {
+            event.preventDefault();
+
+            const email = waitlistEmailInput.value.trim();
+            if (!isValidWaitlistEmail(email)) {
+                return;
+            }
+
+            waitlistSubmitBtn.disabled = true;
+            waitlistSubmitBtn.textContent = 'Submitting...';
+
+            const actionUrl = waitlistForm.getAttribute('action');
+
+            fetch(actionUrl, {
+                method: 'POST',
+                mode: 'cors',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+                },
+                body: JSON.stringify({
+                    email: email,
+                })
+            })
+            .then(async function (response) {
+                const contentType = response.headers.get('content-type') || '';
+                let payload = null;
+
+                if (contentType.includes('application/json')) {
+                    payload = await response.json();
+                } else {
+                    const responseText = await response.text();
+                    try {
+                        payload = JSON.parse(responseText);
+                    } catch (error) {
+                        payload = { message: responseText || 'Something went wrong. Please try again.' };
+                    }
+                }
+
+                if (!response.ok || (payload && payload.status === 'error')) {
+                    const message = payload && (payload.message || payload.error)
+                        ? payload.message || payload.error
+                        : 'Something went wrong. Please try again.';
+                    throw new Error(message);
+                }
+
+                setWaitlistCookie('pipcam_waitlist_email', email, 365);
+                showWaitlistStatus('Thank you for your interest, you are on the waitlist! Keep an eye on your inbox for availability, you will have 72 hours to complete your purchase once notified.', false);
+                waitlistEmailInput.value = '';
+            })
+            .catch(function (error) {
+                const message = error && error.message ? error.message : 'Something went wrong. Please try again.';
+                showWaitlistStatus(message, true);
+            });
+        });
     </script>
 </body>
 
